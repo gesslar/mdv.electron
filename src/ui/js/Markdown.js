@@ -301,7 +301,7 @@ export default class Markdown extends Base {
    * Removes the associated TOC and delegates to parent cleanup.
    */
   remove() {
-    this.#toc.remove()
+    this.#toc?.remove()
     super.remove()
   }
 }

@@ -9,7 +9,7 @@ import Util from "./Util.js"
  * and wiring theme toggle buttons. Theme application to the DOM is handled by UI.
  */
 export default class ConfigDialog extends Base {
-  #contentPath = "./html/config-panel.html"
+  #contentPath = "config-panel.html"
   #themes = ["auto", "light", "dark"]
   #hotReloadOptions = ["on", "off"]
 

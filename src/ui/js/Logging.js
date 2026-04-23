@@ -1,11 +1,3 @@
-const {
-  trace: tauriTrace,
-  info: tauriInfo,
-  warn: tauriWarn,
-  error: tauriError,
-  debug: tauriDebug
-} = window.__TAURI__?.log || {}
-
 /**
  * Joins argument payloads into a loggable string, stringifying non-string items.
  *
@@ -20,7 +12,7 @@ function formatLogPayload(args) {
 }
 
 /**
- * Logs through console and forwards to the Tauri log plugin when available.
+ * Logs through console and forwards to the main process when the bridge is available.
  *
  * @param {"trace"|"debug"|"info"|"warn"|"error"} method - Log severity.
  * @param {...unknown} args - Values to log.
@@ -32,28 +24,14 @@ function logThroughConsole(method, ...args) {
   consoleMethod("[mdv]", ...args)
 
   try {
-    const message = formatLogPayload(args)
-    // Use Tauri's log plugin
-    switch(method) {
-      case "trace": tauriTrace?.(message)
-        break
-      case "debug": tauriDebug?.(message)
-        break
-      case "info": tauriInfo?.(message)
-        break
-      case "warn": tauriWarn?.(message)
-        break
-      case "error": tauriError?.(message)
-        break
-    }
+    window.mdv?.log?.[method]?.(formatLogPayload(args))
   } catch {
     // Ignore logging errors so we never crash the UI
   }
 }
 
 /**
- * Logs a warning message to the console and Tauri log plugin.
- * Each argument can be a string or any serializable object.
+ * Logs a warning message to the console and main process logger.
  *
  * @param {...unknown} args - Arguments to log as a warning.
  * @returns {void}
@@ -63,8 +41,7 @@ function warn(...args) {
 }
 
 /**
- * Logs a debug message to the console and Tauri log plugin.
- * Each argument can be a string or any serializable object.
+ * Logs a debug message to the console and main process logger.
  *
  * @param {...unknown} args - Arguments to log as debug information.
  * @returns {void}
@@ -74,8 +51,7 @@ function debug(...args) {
 }
 
 /**
- * Logs a trace message to the console and Tauri log plugin.
- * Each argument can be a string or any serializable object.
+ * Logs a trace message to the console and main process logger.
  *
  * @param {...unknown} args - Arguments to log as trace information.
  * @returns {void}
@@ -85,8 +61,7 @@ function trace(...args) {
 }
 
 /**
- * Logs an info message to the console and Tauri log plugin.
- * Each argument can be a string or any serializable object.
+ * Logs an info message to the console and main process logger.
  *
  * @param {...unknown} args - Arguments to log as informational messages.
  * @returns {void}
@@ -96,8 +71,7 @@ function info(...args) {
 }
 
 /**
- * Logs an error message to the console and Tauri log plugin.
- * Each argument can be a string or any serializable object.
+ * Logs an error message to the console and main process logger.
  *
  * @param {...unknown} args - Arguments to log as errors.
  * @returns {void}

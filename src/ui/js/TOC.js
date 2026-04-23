@@ -7,7 +7,7 @@ import Util from "./Util.js"
  * Each instance is identified by a random id to avoid collisions across renders.
  */
 export default class TOC extends Base {
-  static #contentPath = "html/toc.html"
+  static #contentPath = "toc.html"
   #tocId
   #tocAnchors = []
 

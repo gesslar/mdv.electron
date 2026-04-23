@@ -128,10 +128,8 @@ export default class UI extends Base {
 
   /**
    * Prevents default context menu and text selection inside the app window.
-   * Intended for the packaged Tauri app where browser defaults are undesired.
    */
   disableMenu() {
-    // Disable context menu and text selection in Tauri app
     this.registerOn("contextmenu", this.#disableMenu(), document, {capture: true})
     this.registerOn("selectstart", this.#disableMenu(), document, {capture: true})
   }

@@ -3,13 +3,13 @@
 import uglify from "@gesslar/uglier"
 
 export default [
-  {ignores: ["src-tauri/**", "**/vendor/**"]},
+  {ignores: ["**/vendor/**"]},
   ...uglify({
     with: [
       "lints-js",
       "lints-jsdoc",
       "node",
-      "tauri",
+      "web",
     ],
   })
 ]

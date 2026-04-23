@@ -2,9 +2,6 @@ import Base from "./Base.js"
 import {error} from "./Logging.js"
 import Notify from "./Notify.js"
 
-const {invoke} = window.__TAURI__.core
-const {listen} = window.__TAURI__.event
-
 /**
  * Manages file watching for hot reload functionality.
  * This is a singleton that persists throughout the application lifetime.
@@ -45,18 +42,15 @@ export default class FileWatcher extends Base {
       return
 
     try {
-      // Start watching the file
-      await invoke("watch_file", {path: this.#currentFilePath})
+      await window.mdv.watcher.watch(this.#currentFilePath)
 
-      // Listen for file change events
-      this.#fileWatcherUnlisten = await listen("file-changed", async() => {
+      this.#fileWatcherUnlisten = window.mdv.watcher.onChange(async() => {
         if(this.#currentFilePath) {
           try {
-            // Mark the current scroll position
             this.#markScrollPosition()
 
             const content =
-              await window.__TAURI__.fs.readTextFile(this.#currentFilePath)
+              await window.mdv.fs.readTextFile(this.#currentFilePath)
             Notify.emit("content-loaded", {content, hotReload: true})
 
             // Scroll will be restored when markdown-rendered event fires
@@ -164,7 +158,7 @@ export default class FileWatcher extends Base {
     }
 
     try {
-      await invoke("unwatch_file")
+      await window.mdv.watcher.unwatch()
     } catch(_err) {
       // Ignore errors when stopping watcher
     }

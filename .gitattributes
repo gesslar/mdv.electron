@@ -1,23 +1,16 @@
-# Force LF on anything that runs inside a Linux container or on a Unix host.
-# Without this, Windows checkouts with core.autocrlf=true hand CRLF-laden
-# scripts to bash inside the Docker image and they die with:
-#   /usr/bin/env: 'bash\r': No such file or directory
+# Force LF on anything run on a Unix host. Without this, Windows checkouts
+# with core.autocrlf=true can hand CRLF-laden scripts to bash and break them.
 
 *.sh            text eol=lf
 *.mjs           text eol=lf
 *.js            text eol=lf
-Dockerfile*     text eol=lf
-*.Dockerfile    text eol=lf
+*.cjs           text eol=lf
 
-# JSON/TOML/YAML/MD — LF keeps diffs clean across OSes.
+# JSON/YAML/MD — LF keeps diffs clean across OSes.
 *.json          text eol=lf
-*.toml          text eol=lf
 *.yml           text eol=lf
 *.yaml          text eol=lf
 *.md            text eol=lf
-
-# Rust sources.
-*.rs            text eol=lf
 
 # Windows-only: keep CRLF.
 *.bat           text eol=crlf

@@ -1,6 +1,6 @@
 # mdv
 
-A fast, minimal desktop markdown viewer built with Tauri and vanilla JavaScript.
+A fast, minimal desktop markdown viewer built with Electron and vanilla JavaScript.
 
 ## Features
 
@@ -14,26 +14,33 @@ A fast, minimal desktop markdown viewer built with Tauri and vanilla JavaScript.
 - **Drag-and-drop** — drop a markdown file onto the window to open it
 - **CLI support** — pass a file path as an argument: `mdv /path/to/file.md`
 
-## Installation
+## Build from source
 
-### Build from source
-
-Requires [Rust](https://rustup.rs/), [Node.js](https://nodejs.org/) (>= 22), and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform.
+Requires [Node.js](https://nodejs.org/) >= 22.
 
 ```bash
 git clone https://github.com/gesslar/mdv.git
 cd mdv
 npm install
-npm run build
+npm start
 ```
 
-Bundled packages are output to `src-tauri/target/release/bundle/`.
+### Packaged distributables
+
+```bash
+npm run make                                               # all Linux targets
+npx electron-forge make --targets @electron-forge/maker-deb     # just .deb
+npx electron-forge make --targets @electron-forge/maker-rpm     # just .rpm
+npx electron-forge make --targets @reforged/maker-appimage      # just .AppImage
+```
+
+Artifacts land in `out/make/`.
 
 ### Fedora (RPM)
 
 ```bash
-npm run build
-sudo dnf install -y src-tauri/target/release/bundle/rpm/mdv-*.x86_64.rpm
+npm run make
+sudo dnf install -y out/make/rpm/x64/mdv-*.x86_64.rpm
 ```
 
 ## Usage
@@ -50,21 +57,21 @@ mdv
 
 Click the gear icon to open the config panel:
 
-| Setting | Options | Default |
-|---------|---------|---------|
-| Theme | Auto, Light, Dark | Auto |
-| Hot Reload | On, Off | On |
+| Setting    | Options            | Default |
+|------------|--------------------|---------|
+| Theme      | Auto, Light, Dark  | Auto    |
+| Hot Reload | On, Off            | On      |
 
 Settings are persisted across sessions.
 
-## Tech Stack
+## Tech stack
 
-- **Backend**: Rust + [Tauri v2](https://v2.tauri.app/)
+- **Runtime**: [Electron](https://www.electronjs.org/) (main + sandboxed preload + renderer)
+- **Packaging**: [Electron Forge](https://www.electronforge.io/) with `maker-deb`, `maker-rpm`, and [`@reforged/maker-appimage`](https://github.com/SpacingBat3/ReForged)
 - **Frontend**: Vanilla JS (ES6 modules), HTML5, CSS3
 - **Markdown**: [marked](https://github.com/markedjs/marked) + [highlight.js](https://highlightjs.org/)
 - **Sanitization**: [DOMPurify](https://github.com/cure53/DOMPurify)
-- **File watching**: [notify](https://crates.io/crates/notify) (Rust)
 
 ## License
 
-[Unlicense](UNLICENSE)
+[0BSD](LICENSE)

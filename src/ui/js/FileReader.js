@@ -3,29 +3,18 @@ import {error, warn} from "./Logging.js"
 import MD from "./MD.js"
 import Notify from "./Notify.js"
 
-const {invoke} = window.__TAURI__.core
-
 /**
  * Handles loading markdown from disk or drag-and-drop and hands content to the UI.
  * Initialization wires global drag/drop listeners; other helpers validate and read files.
  */
 export default class MarkdownFile extends Base {
   /**
-   * Attempts to resolve a CLI-provided markdown file path when launching via Tauri.
+   * Attempts to resolve a CLI-provided markdown file path at launch.
    *
    * @returns {Promise<string|null>} File path when detected; null otherwise.
    */
   async identifyCliFilename() {
-    // Get runtime path from Tauri command and the args that got passed in,
-    // if any.
-    const runtimePath = await invoke("get_runtime_path")
-    const passedArgs = await invoke("get_cli_args")
-
-    const arg = (
-      passedArgs
-        .filter(arg => typeof arg === "string")
-        .filter(arg => runtimePath && arg !== runtimePath)
-    )[0]
+    const [arg] = await window.mdv.cli.getArgs()
 
     return this.#isLikelyMarkdownFile(arg)
       ? arg
@@ -102,16 +91,14 @@ export default class MarkdownFile extends Base {
   }
 
   /**
-   * Prompts the user to select a markdown file using the Tauri dialog API.
+   * Prompts the user to select a markdown file.
    *
    * @returns {Promise<string?>} Absolute file path or null when cancelled.
    * @private
    */
   async #promptForFileSelection() {
-    // Use Tauri dialog API
     try {
-      const {open} = window.__TAURI__.dialog
-      const selected = await open({
+      const selected = await window.mdv.dialog.openFile({
         title: "Open Markdown File",
         filters: [{
           name: "Markdown Files",
@@ -121,7 +108,6 @@ export default class MarkdownFile extends Base {
         directory: false,
       })
 
-      // open() returns a string path or null
       return selected || null
     } catch(err) {
       error(`Failed to open file dialog: ${err}`)
@@ -164,7 +150,7 @@ export default class MarkdownFile extends Base {
   }
 
   /**
-   * Reads markdown from a file path provided by Tauri APIs.
+   * Reads markdown from a file path.
    *
    * @param {string} filePath - Absolute path to the markdown file.
    * @returns {Promise<string?>} File contents or null when missing/unreadable.
@@ -174,7 +160,7 @@ export default class MarkdownFile extends Base {
       throw new Error("No file path provided.")
 
     try {
-      const content = await window.__TAURI__.fs.readTextFile(filePath)
+      const content = await window.mdv.fs.readTextFile(filePath)
 
       if(!content)
         throw new Error("Could not read selected file.")
