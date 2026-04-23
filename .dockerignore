@@ -1,0 +1,10 @@
+# Keep the build context small — the actual source gets bind-mounted at run time,
+# so the image itself only needs the Dockerfile. These exclusions speed up
+# `docker build` and prevent host-OS artefacts from leaking in.
+node_modules
+src-tauri/target
+dist
+.git
+.claude
+*.log
+*.tmp

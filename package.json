@@ -1,0 +1,35 @@
+{
+  "name": "mdv",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/app/index.js",
+  "scripts": {
+    "start": "electron .",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "update": "npx npm-check-updates -u && npm install",
+    "pr": "gt submit --publish --restack --ai",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major",
+    "version": "bash scripts/sync-version.sh"
+  },
+  "devDependencies": {
+    "@gesslar/uglier": "^2.4.1",
+    "@highlightjs/cdn-assets": "^11.11.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tauri-apps/cli": "^2.10.1",
+    "dompurify": "^3.4.0",
+    "electron": "^41.2.2",
+    "eslint": "^10.2.0",
+    "eslint-plugin-jsdoc": "^62.9.0",
+    "globals": "^17.5.0",
+    "marked": "^18.0.0",
+    "marked-highlight": "^2.2.4",
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "@gesslar/toolkit": "^5.2.0"
+  }
+}

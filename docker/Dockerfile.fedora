@@ -1,0 +1,66 @@
+# syntax=docker/dockerfile:1.7
+# Build + bundle mdv on Fedora 43.
+# Usage: see docker/build.sh fedora
+
+FROM fedora:43
+
+ENV CARGO_HOME=/opt/cargo \
+    RUSTUP_HOME=/opt/rustup \
+    PATH=/opt/cargo/bin:/usr/local/bin:/usr/bin:/bin
+
+# Core build deps + Tauri v2 system deps + RPM tooling runtime helpers.
+RUN dnf install -y --setopt=install_weak_deps=False \
+      gcc gcc-c++ make \
+      pkgconf-pkg-config \
+      webkit2gtk4.1-devel \
+      openssl-devel \
+      libappindicator-gtk3-devel \
+      librsvg2-devel \
+      file wget curl git jq which xz findutils \
+      nodejs npm \
+      rpm-build rpmdevtools rpmrebuild \
+      desktop-file-utils \
+ && dnf clean all
+
+# Rust toolchain (minimal profile — we only need cargo + rustc).
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+      | sh -s -- -y --default-toolchain stable --profile minimal \
+ && chmod -R a+rwX "$CARGO_HOME" "$RUSTUP_HOME"
+
+# Pre-create named-volume mount points with open perms so containers run
+# as an arbitrary host UID can write to them on first volume init.
+RUN mkdir -p /opt/cargo/registry /build/src-tauri/target /build/node_modules \
+ && chmod -R a+rwX /opt/cargo /build
+
+WORKDIR /build
+
+# Bake the build steps into a small entrypoint so `docker run` stays terse
+# and the logic lives alongside the Dockerfile rather than the wrapper.
+COPY <<'EOF' /usr/local/bin/mdv-build
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd /build
+
+# node_modules is on a named volume; only reinstall when package-lock changes.
+if [[ ! -f node_modules/.package-lock.json ]] \
+   || ! cmp -s package-lock.json node_modules/.package-lock.json; then
+  echo "==> npm ci"
+  npm ci
+  cp package-lock.json node_modules/.package-lock.json
+fi
+
+echo "==> tauri build --bundles rpm"
+npx tauri build --bundles rpm
+
+echo "==> fix-rpm.sh"
+bash scripts/fix-rpm.sh
+
+OUT=dist/fedora
+mkdir -p "$OUT"
+cp -v src-tauri/target/release/bundle/rpm/*.rpm "$OUT/"
+echo "==> artifact written to $OUT"
+EOF
+RUN chmod +x /usr/local/bin/mdv-build
+
+CMD ["mdv-build"]

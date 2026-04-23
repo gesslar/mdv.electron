@@ -1,0 +1,65 @@
+[id^="MDV-TOC-"] {
+  grid-column: 2;
+  height: 100%;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  padding: 0;
+
+  ul {
+    padding: 0;
+
+    li.toc-item {
+      list-style-type: none;
+      margin-block-start: 0;
+      margin-block-end: 0;
+      padding-inline-start: 0;
+      unicode-bidi: isolate;
+      white-space: nowrap;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      color: var(--color-pink-500);
+      padding-right: 1rem;
+
+      &[visible] {
+        border-left: 1px solid var(--color-zinc-500);
+      }
+
+      &:not([visible]) {
+        border-left: 1px solid transparent;
+      }
+
+      .dark &[visible] {
+        border-left: 1px solid var(--color-pink-500);
+      }
+
+      .dark &:not([visible]) {
+        border-left: 1px solid transparent;
+      }
+
+      &.toc-depth-1 {
+        padding-left: calc(var(--spacing-lg) * 0)
+      }
+
+      &.toc-depth-2 {
+        padding-left: calc(var(--spacing-lg) * 1)
+      }
+
+      &.toc-depth-3 {
+        padding-left: calc(var(--spacing-lg) * 2)
+      }
+
+      &.toc-depth-4 {
+        padding-left: calc(var(--spacing-lg) * 3)
+      }
+
+      &.toc-depth-5 {
+        padding-left: calc(var(--spacing-lg) * 4)
+      }
+
+      &.toc-depth-6 {
+        padding-left: calc(var(--spacing-lg) * 5)
+      }
+    }
+  }
+}

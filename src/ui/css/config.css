@@ -1,0 +1,189 @@
+#config-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+#config-panel {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  position: absolute;
+  z-index: 9999;
+  border: none;
+  outline-style: solid;
+  outline-width: 0.1rem;
+  border-radius: var(--radius-lg);
+  padding: 0;
+
+  /* Config Panel */
+
+  #config-panel-content {
+    height: auto;
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    #config-actions {
+      button#close-config.config-close-button {
+        position: absolute;
+        right: .25rem;
+        top: 0;
+        background-color: transparent;
+        box-shadow: none;
+        color: var(--color-zinc-700);
+        cursor: pointer;
+
+        &:hover {
+          color: var(--color-pink-600);
+          border: none;
+          outline: none;
+        }
+
+        >.config-close-icon {
+          width: calc(var(--spacing) * 6);
+          height: calc(var(--spacing) * 6);
+        }
+      }
+    }
+
+    #config-content {
+      height: 100%;
+
+      ul#config-list {
+        padding-inline-start: 0;
+        list-style: none;
+
+        li.config-list-item {
+          margin: 1rem 1rem;
+
+          .config-section-header {
+            border-bottom: 1px solid var(--color-zinc-800);
+
+            .config-section-title {
+              font-size: 1.24rem;
+              line-height: var(--text-base--line-height);
+              font-weight: var(--font-weight-thin);
+              letter-spacing: var(--tracking-wider);
+              margin: 0;
+            }
+          }
+
+          .config-section-content {
+            padding-top: 1em;
+
+            /* Button Group */
+            ul.button-group-horizontal {
+              isolation: isolate;
+              display: inline-flex;
+              border-radius: var(--radius-sm);
+              box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+              cursor: pointer;
+              padding-inline-start: 0;
+              list-style: none;
+
+              li.button-group-item {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                color: var(--color-zinc-200);
+                background-color: var(--color-zinc-800);
+                padding-inline: calc(var(--spacing) * 3);
+                padding-block: calc(var(--spacing) * 2);
+                font-size: var(--text-sm);
+                line-height: calc(1.25 / 0.875);
+                font-weight: var(--font-weight-medium);
+                border: 1px solid var(--color-zinc-900);
+                cursor: pointer;
+
+                &:hover {
+                  background-color: var(--color-zinc-600);
+                }
+
+                &:focus {
+                  z-index: 10;
+                }
+
+                &:first-child {
+                  border-top-left-radius: var(--radius-lg);
+                  border-bottom-left-radius: var(--radius-lg);
+                }
+
+                &:last-child {
+                  border-top-right-radius: var(--radius-lg);
+                  border-bottom-right-radius: var(--radius-lg);
+                }
+
+                &:not(:first-child) {
+                  margin-left: -1px;
+                }
+
+                /* Button Group Active State */
+                &.active {
+                  background-color: color-mix(in oklab, var(--color-pink-500) 50%, transparent);
+                  color: var(--color-white);
+                  border-color: color-mix(in oklab, var(--color-pink-600) 50%, transparent);
+                }
+
+                &.active:hover {
+                  background-color: color-mix(in oklab, var(--color-pink-500) 70%, transparent);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Theme-specific styles for config panel */
+html.dark #config-panel {
+  background-color: var(--color-zinc-900);
+  color: var(--color-zinc-200);
+  outline-color: var(--color-zinc-600);
+  box-shadow: 1px 1px 15px 2px var(--color-zinc-800);
+
+  &::backdrop {
+    background-color: color-mix(in oklab, var(--color-pink-900) 25%, transparent)
+  }
+}
+
+html.dark #config-panel .config-close-button {
+  color: var(--color-zinc-400);
+}
+
+html.dark #config-panel .config-close-button:hover {
+  color: color-mix(in oklab, var(--color-pink-500) 65%, transparent);
+}
+
+html.light #config-panel {
+  background-color: var(--color-pink-100);
+  color: var(--color-pink-800);
+  outline-color: var(--color-pink-400);
+  box-shadow: 1px 1px 15px 2px var(--color-pink-500);
+
+  &::backdrop {
+    background-color: color-mix(in oklab, var(--color-zinc-900) 55%, transparent)
+  }
+}
+
+html.light #config-panel .config-close-button {
+  color: var(--color-zinc-700);
+}
+
+html.light #config-panel .config-close-button:hover {
+  color: var(--color-pink-600);
+}

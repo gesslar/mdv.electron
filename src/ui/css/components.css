@@ -1,0 +1,72 @@
+/* Layout Components */
+.app-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  background-color: var(--color-white);
+  color: var(--color-black);
+}
+
+.dark .app-container {
+  background-color: var(--color-zinc-950);
+  color: var(--color-zinc-100);
+}
+
+/* Icon */
+.icon-sm {
+  width: calc(var(--spacing) * 4);
+  height: 100%;
+  object-fit: contain;
+  transition-property: transform;
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+}
+
+/* Utility Classes (minimal, semantic) */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.flex {
+  display: flex;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Button Components */
+.btn {
+  border-radius: var(--radius-xs);
+  background-color: var(--color-pink-500);
+  padding-inline: calc(var(--spacing) * 5);
+  padding-block: calc(var(--spacing) * 2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  outline: none;
+  border: none;
+
+  &:hover {
+    @media (hover: hover) {
+      outline: 1px solid var(--color-zinc-400);
+      transform: scale(1.1);
+    }
+  }
+
+  &:active {
+    transform: scale(1.05);
+  }
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+}
