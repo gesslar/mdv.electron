@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=MDV
+GenericName=Markdown Viewer
+Comment=A fast, minimal desktop markdown viewer
+Exec=mdv %U
+Icon=mdv
+StartupNotify=true
+StartupWMClass=mdv
+Categories=Office;Utility;
+MimeType=text/markdown;application/x-markdown;
+Actions=NewEmptyWindow;
+
+[Desktop Action NewEmptyWindow]
+Name=New Empty Window
+Exec=mdv

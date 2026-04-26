@@ -1,7 +1,17 @@
 import * as TK from "@gesslar/toolkit"
 import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, nativeImage, Menu, shell} from "electron"
+import squirrelStartup from "electron-squirrel-startup"
 import {readFile} from "node:fs/promises"
 import {watch} from "node:fs"
+import {handleSquirrelFileAssoc} from "./squirrel-file-assoc.js"
+
+// Squirrel runs the packaged app on install/update/uninstall: shortcuts are
+// handled by the squirrel-startup shim, file associations by our reg
+// handler. Both detect the --squirrel-* argv and bail; we then quit before
+// spinning up windows or IPC handlers.
+handleSquirrelFileAssoc()
+if(squirrelStartup)
+  electron.quit()
 
 const {Notify, Disposer, FileObject} = TK
 const appDir = FileObject.fromCwf().parent

@@ -2,6 +2,12 @@ const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 const path = require('path')
 
+// Custom .desktop file shared by deb/rpm (via desktopTemplate) and AppImage
+// (via desktopFile). Adds StartupWMClass=mdv so Wayland/GNOME match the
+// running window's app_id (set via --class=mdv in src/app/index.js) to the
+// installed launcher and avoid showing two icons in the dock.
+const desktopFilePath = path.resolve(__dirname, 'src/assets/mdv.desktop')
+
 // Shared across all three Linux makers (deb, rpm, AppImage).
 const unixMeta = {
   productName: 'MDV',
@@ -58,6 +64,7 @@ module.exports = {
           maintainer: 'gesslar <bmw@gesslar.dev>',
           section: 'text',
           priority: 'optional',
+          desktopTemplate: desktopFilePath,
         },
       },
     },
@@ -67,6 +74,7 @@ module.exports = {
         options: {
           ...packageMeta,
           license: '0BSD',
+          desktopTemplate: desktopFilePath,
         },
       },
     },
@@ -76,12 +84,10 @@ module.exports = {
       config: {
         options: {
           ...unixMeta,
-          actions: {
-            NewEmptyWindow: {
-              Name: 'New Empty Window',
-              Exec: 'mdv',
-            },
-          },
+          // NewEmptyWindow action is baked into the shared .desktop file;
+          // desktopFile bypasses the maker's actions/categories/mimeType
+          // injection, so the file must carry everything itself.
+          desktopFile: desktopFilePath,
         },
       },
     },
