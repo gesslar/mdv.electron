@@ -1,6 +1,6 @@
 import Base from "./Base.js"
 import {error} from "./Logging.js"
-import Notify from "./Notify.js"
+import {DisposerClass, Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Manages file watching for hot reload functionality.
@@ -8,7 +8,7 @@ import Notify from "./Notify.js"
  */
 export default class FileWatcher extends Base {
   #currentFilePath = null
-  #fileWatcherUnlisten = null
+  #watchSession = new DisposerClass()
   #savedScrollOffset = null
   #tempScrollMarkerId = "__mdv_scroll_marker__"
 
@@ -44,28 +44,28 @@ export default class FileWatcher extends Base {
     try {
       await window.mdv.watcher.watch(this.#currentFilePath)
 
-      this.#fileWatcherUnlisten = window.mdv.watcher.onChange(async() => {
-        if(this.#currentFilePath) {
-          try {
-            this.#markScrollPosition()
+      this.#watchSession.register([
+        window.mdv.watcher.onChange(async() => {
+          if(this.#currentFilePath) {
+            try {
+              this.#markScrollPosition()
 
-            const content =
-              await window.mdv.fs.readTextFile(this.#currentFilePath)
-            Notify.emit("content-loaded", {content, hotReload: true})
+              const content =
+                await window.mdv.fs.readTextFile(this.#currentFilePath)
+              Notify.emit("content-loaded", {content, hotReload: true})
 
-            // Scroll will be restored when markdown-rendered event fires
-          } catch(err) {
-            error(`Failed to reload file: ${err}`)
+              // Scroll will be restored when markdown-rendered event fires
+            } catch(err) {
+              error(`Failed to reload file: ${err}`)
+            }
           }
-        }
-      })
-
-      // Listen for markdown-rendered to restore scroll position
-      this.registerOn("markdown-rendered", () => {
-        if(this.#savedScrollOffset !== null) {
-          this.#restoreScrollPosition()
-        }
-      })
+        }),
+        Notify.on("markdown-rendered", () => {
+          if(this.#savedScrollOffset !== null) {
+            this.#restoreScrollPosition()
+          }
+        }),
+      ])
     } catch(err) {
       error(`Failed to set up file watcher: ${err}`)
     }
@@ -152,10 +152,7 @@ export default class FileWatcher extends Base {
    * @private
    */
   async #stopFileWatcher() {
-    if(this.#fileWatcherUnlisten) {
-      this.#fileWatcherUnlisten()
-      this.#fileWatcherUnlisten = null
-    }
+    this.#watchSession.dispose()
 
     try {
       await window.mdv.watcher.unwatch()

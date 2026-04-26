@@ -1,8 +1,11 @@
 import Base from "./Base.js"
 import {info, warn} from "./Logging.js"
-import Markdown from "./Markdown.js"
-import Notify from "./Notify.js"
+import {Notify} from "./vendor/toolkit.esm.js"
 import TOC from "./TOC.js"
+
+/**
+ * @import {Markdown} from "./Markdown.js"
+ */
 
 /**
  * Coordinates DOM lookups, event wiring, and display behavior for the UI.
@@ -380,7 +383,6 @@ export default class UI extends Base {
   #addDragEffect() {
     document.querySelectorAll(
       this.#dragTargetIds
-        .map(e => `#${e}`)
         .join(" ")
     )
       .forEach(e => !e.classList.contains("dragging") && this.#toggleDragEffect(e))
@@ -390,7 +392,6 @@ export default class UI extends Base {
   #removeDragEffect() {
     document.querySelectorAll(
       this.#dragTargetIds
-        .map(e => `#${e}`)
         .join(" ")
     )
       .forEach(e => e.classList.contains("dragging") && this.#toggleDragEffect(e))

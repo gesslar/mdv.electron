@@ -1,10 +1,11 @@
 import * as TK from "@gesslar/toolkit"
-import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, Menu} from "electron"
+import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, nativeImage, Menu} from "electron"
 import {readFile} from "node:fs/promises"
 import {watch} from "node:fs"
 
 const {Notify, Disposer, FileObject} = TK
 const appDir = FileObject.fromCwf().parent
+const srcDir = appDir.parent
 const preloadPath = appDir.getFile("preload.cjs").path
 const ui = appDir.parent.getDirectory("ui")
 
@@ -22,10 +23,13 @@ const stopWatcher = () => {
   }
 }
 
+const appIcon = nativeImage.createFromPath(srcDir.getDirectory("assets/icons").getFile("android-chrome-512x512.png").path)
 const createWindow = () => {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    fullscreenable: true,
+    icon: appIcon,
+    // frame: false,
+    type: "desktop",
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
@@ -98,6 +102,7 @@ electron.whenReady().then(() => {
 Disposer.register(
   Notify.on("window-all-closed", () => {
     stopWatcher()
+
     if(process.platform !== "darwin")
       electron.quit()
   }, electron)

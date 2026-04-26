@@ -1,7 +1,7 @@
 import Base from "./Base.js"
 import {error, warn} from "./Logging.js"
 import MD from "./MD.js"
-import Notify from "./Notify.js"
+import {Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Handles loading markdown from disk or drag-and-drop and hands content to the UI.

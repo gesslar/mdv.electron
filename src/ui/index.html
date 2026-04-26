@@ -11,8 +11,6 @@
   <link rel="manifest" href="assets/icons/site.webmanifest">
 
   <script>
-    console.log(document.baseURI);
-
     // Apply theme immediately to prevent flash
     const saved = localStorage.getItem("mdv-theme") || "auto"
     let theme
@@ -58,10 +56,9 @@
             </svg>
           </button>
         </li>
-        <li>
-          <button id="action-open-button" class="cursor-pointer btn btn-primary">
-            Open
-          </button>
+        <button id="action-open-button" class="cursor-pointer btn btn-primary">
+          Open
+        </button>
         </li>
       </ul>
     </nav>

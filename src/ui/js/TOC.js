@@ -1,6 +1,5 @@
 import Base from "./Base.js"
-import Notify from "./Notify.js"
-import Util from "./Util.js"
+import {HTML, Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Builds and injects a table of contents derived from headings collected by Marked.
@@ -45,7 +44,9 @@ export default class TOC extends Base {
   static async new(mdElement, headingsMetadata) {
     const element = document.createElement("div")
     const toc = await this.#createToc(mdElement, headingsMetadata)
+
     element.appendChild(toc)
+
     const instance = new TOC(element)
 
     return instance
@@ -61,32 +62,34 @@ export default class TOC extends Base {
    * @private
    */
   static async #createToc(mdElement, headingsMetadata) {
-    const tocHtml = await Util.loadHTML(this.#contentPath)
+    console.log("mdElement", mdElement)
+    const tocHtml = await HTML.loadHTML(this.#contentPath)
 
     /** @type {HTMLDivElement} */
     const tocElement = document.createElement("div")
 
-    Util.setHTMLContent(tocElement, tocHtml)
+    HTML.setHTMLContent(tocElement, tocHtml)
 
     /** @type {HTMLTemplateElement} */
     const template = tocElement.querySelector("#toc-item-template")
+
     /** @type {HTMLUListElement} */
     const tocRoot = tocElement.querySelector("#toc-mdv")
 
     headingsMetadata.forEach(headingMeta => {
+      console.log(headingMeta)
+
       const title = headingMeta.text
       const depth = headingMeta.depth
       const id = headingMeta.id
 
       /** @type {HTMLHeadingElement} */
-      const headingInDoc = mdElement.querySelector(`[toc-reference]`)
+      const headingInDoc = mdElement.querySelector(`#${CSS.escape(id)}`)
 
       if(!headingInDoc)
-        throw new Error(`What? Can't find an item with the toc-reference attribute`)
+        throw new Error(`What? Can't find heading with id="${id}"`)
 
-      headingInDoc.id = id
       headingInDoc.setAttribute("headingDepth", depth)
-      headingInDoc.removeAttribute("toc-reference")
 
       /** @type {Node} */
       const fragment = template.content.cloneNode(true)

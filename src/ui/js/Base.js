@@ -1,13 +1,12 @@
-import Notify from "./Notify.js"
-import Util from "./Util.js"
+import {DisposerClass, HTML, Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Base helper for UI classes that want centralized event lifecycles.
- * Tracks listener disposer functions and registered DOM elements so subclasses
+ * Tracks disposer callbacks and registered DOM elements so subclasses
  * can easily tear down on removal.
  */
 export default class Base {
-  #disposers = new Array()
+  #disposer = new DisposerClass()
   #elements = new Map()
   #element = null
 
@@ -49,10 +48,9 @@ export default class Base {
   remove() {
     Notify.emit("object-removed", this)
 
-    this.#disposers.toReversed().forEach(disposer => disposer())
-    this.#disposers.length = 0
+    this.#disposer.dispose()
 
-    this.element && Util.clearHTMLContent(this.element)
+    this.element && HTML.clearHTMLContent(this.element)
   }
 
   /**
@@ -62,11 +60,20 @@ export default class Base {
    * @param {(evt: Event) => void} func - Handler to invoke.
    * @param {HTMLElement | Window} [element] - Target element; defaults to window.
    * @param {boolean | object} [options] - addEventListener options.
+   * @returns {() => void} Unregister function that detaches the listener and drops it from the disposer registry.
    */
   registerOn(eventName, func, element=undefined, options=undefined) {
-    const disposer = Notify.on(eventName, func, element, options)
+    return this.#disposer.register(Notify.on(eventName, func, element, options))
+  }
 
-    this.#disposers.push(disposer)
+  /**
+   * Registers one or more disposer callbacks on this object's lifecycle.
+   *
+   * @param {...(() => void)|Array<() => void>} disposers - Cleanup callbacks.
+   * @returns {(() => void)|Array<() => void>} Unregister function(s).
+   */
+  register(...disposers) {
+    return this.#disposer.register(...disposers)
   }
 
   /**
@@ -75,37 +82,41 @@ export default class Base {
    * @returns {Array<() => void>} Frozen list of disposer callbacks.
    */
   get disposers() {
-    return Object.freeze(...this.#disposers)
+    return this.#disposer.disposers
   }
 
   /**
    * Resolves a DOM element and optionally registers listener functions on it.
-   * Each listener's return value is treated as a disposer and tracked.
+   * Each listener's return value, when a function, is registered as a disposer.
    *
    * @param {string} elementId - Selector passed to querySelector.
    * @param {((element: Element) => (void | (() => void))) | Array<(element: Element) => (void | (() => void))>} [listenerFunctions] - One or more listener initializers.
    */
   initialiseElement(elementId, listenerFunctions=[]) {
-    const functionp = f => typeof f === "function"
-
     const element = document.querySelector(elementId)
     if(!element)
       throw new Error(`Unable to load element '${elementId}'`)
 
     this.#elements.set(element, element)
 
-    listenerFunctions = Array.isArray(listenerFunctions)
+    const listeners = Array.isArray(listenerFunctions)
       ? listenerFunctions
       : [listenerFunctions]
 
-    if(listenerFunctions.length > 0 && !listenerFunctions.every(functionp))
+    if(listeners.length === 0)
+      return
+
+    if(!listeners.every(f => typeof f === "function"))
       throw new Error(`Listener functions must be a single function or an array of functions.`)
 
     const errors = []
-    listenerFunctions.forEach(f => {
+
+    listeners.forEach(f => {
       try {
         const disposer = f.call(element, element)
-        this.#disposers.push(disposer)
+
+        if(typeof disposer === "function")
+          this.#disposer.register(disposer)
       } catch(e) {
         errors.push(e)
       }

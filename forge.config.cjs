@@ -1,11 +1,12 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const path = require('path')
 
 // Shared across all three Linux makers (deb, rpm, AppImage).
 const unixMeta = {
   productName: 'MDV',
   genericName: 'Markdown Viewer',
-  icon: 'src/assets/icons/android-chrome-512x512.png',
+  icon: 'src/assets/icons/mdv.svg',
   categories: ['Office', 'Utility'],
   mimeType: ['text/markdown', 'application/x-markdown'],
 };
@@ -24,6 +25,13 @@ module.exports = {
     executableName: 'mdv',
     // Packager appends .ico on Windows and .icns on Mac; ignored on Linux.
     icon: 'src/assets/icons/app',
+    // Allowlist what gets copied into resources/app. Packager's default is
+    // "everything that isn't a tiny built-in ignore set", which sweeps in
+    // docs, IDE configs, forge config, patches/, .flatpak-builder/, etc.
+    ignore: filePath => {
+      if(filePath === '') return false
+      return !/^\/(src|node_modules|package\.json|package-lock\.json)(\/|$)/.test(filePath)
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -47,7 +55,7 @@ module.exports = {
       config: {
         options: {
           ...packageMeta,
-          maintainer: 'gesslar <karahd@gmail.com>',
+          maintainer: 'gesslar <bmw@gesslar.dev>',
           section: 'text',
           priority: 'optional',
         },
@@ -81,12 +89,15 @@ module.exports = {
       name: '@electron-forge/maker-flatpak',
       platforms: ['linux'],
       config: {
+        workingDir: path.resolve('.flatpak-builder'),
+        cleanTmpdirs: false,
         options: {
           ...packageMeta,
           id: 'dev.gesslar.mdv',
           runtimeVersion: '24.08',
           base: 'org.electronjs.Electron2.BaseApp',
           baseVersion: '24.08',
+          bin: "mdv",
           finishArgs: [
             '--share=ipc',
             '--socket=x11',
@@ -101,7 +112,10 @@ module.exports = {
             {
               name: 'zypak',
               'build-options': {
-                env: {CXX: 'g++'},
+                env: {
+                  CC: 'gcc',
+                  CXX: 'g++'
+                },
               },
               sources: [
                 {

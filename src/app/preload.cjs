@@ -1,4 +1,4 @@
-const {contextBridge, ipcRenderer} = require("electron")
+const {contextBridge, ipcRenderer, webUtils} = require("electron")
 
 // Narrow bridge surface for the renderer. Anything the UI touches goes
 // through here — no direct ipcRenderer exposure, no node globals.
@@ -13,7 +13,8 @@ contextBridge.exposeInMainWorld("mdv", {
   },
 
   fs: {
-    readTextFile: path => ipcRenderer.invoke("fs:read-text-file", path)
+    readTextFile: path => ipcRenderer.invoke("fs:read-text-file", path),
+    getPathForFile: file => webUtils.getPathForFile(file)
   },
 
   watcher: {

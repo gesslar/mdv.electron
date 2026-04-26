@@ -1,8 +1,6 @@
 import hljs from "./vendor/highlight.esm.js"
-import {Marked} from "./vendor/marked.esm.js"
-import {markedHighlight} from "./vendor/marked-highlight-esm.js"
-import Notify from "./Notify.js"
-import Util from "./Util.js"
+import {markedHighlight} from "./vendor/marked-highlight.esm.js"
+import {HTML, Notify} from "./vendor/toolkit.esm.js"
 import TOC from "./TOC.js"
 import Base from "./Base.js"
 
@@ -11,7 +9,7 @@ import Base from "./Base.js"
  * Designed to be initialized once at startup; headings collected via
  * the token walker are later consumed by the TOC builder.
  */
-export default class Markdown extends Base {
+export class Markdown extends Base {
   #raw
   #parsed
   #marked
@@ -30,7 +28,6 @@ export default class Markdown extends Base {
     // Don't sanitize markdown input - it's not HTML yet
     // Sanitization should happen on the HTML output after rendering, not on markdown source
     this.#raw = content ?? ""
-    this.#initializeMarked()
   }
 
   /**
@@ -39,11 +36,14 @@ export default class Markdown extends Base {
    * @param {boolean} [hotReload=false] - Whether this is a hot reload.
    * @returns {Promise<void>} Resolves when rendering completes.
    */
-  async render(hotReload = false) {
-    const parsed = await this.#marked.parse(this.#raw)
+  async render(content, hotReload = false) {
+    this.#headings = []
 
+    const marked = await this.#initializeMarked()
+    const parsed = await marked.parse(content)
     const element = document.createElement("div")
-    Util.setHTMLContent(element, parsed)
+
+    HTML.setHTMLContent(element, parsed)
 
     // Inject copy buttons into code blocks
     this.#injectCopyButtons(element)
@@ -93,9 +93,11 @@ export default class Markdown extends Base {
    * @returns {Promise<boolean>} True when initialization completes; false when marked is unavailable.
    */
   async #initializeMarked() {
-    this.#marked = new Marked(
+    const module = await import("./vendor/marked.esm.js")
+    const {Marked} = module
+    const marked = new Marked(
       markedHighlight({
-        userNewRenderer: true,
+        async: true,
         emptyLangClass: "hljs",
         langPrefix: "hljs language-",
         highlight(code, lang) {
@@ -108,16 +110,17 @@ export default class Markdown extends Base {
     )
 
     // Custom link renderer with external link icons
-    this.#marked.use({
+    marked.use({
+      gfm: true,
+      async: true,
       renderer: {
         link: arg => this.#renderLink(arg),
         heading: arg => this.#renderHeadingAnchor(arg)
       },
+      walkTokens: async arg => await this.#processHeading(arg)
     })
 
-    this.#marked.use({
-      walkTokens: arg => this.#processHeading(arg)
-    })
+    return marked
 
     // if(typeof marked === "undefined") {
     //   error("marked.js not loaded. Cannot render markdown.")
@@ -166,10 +169,7 @@ export default class Markdown extends Base {
       const button = document.createElement("button")
       button.className = "code-copy-btn"
       button.setAttribute("aria-label", "Copy code to clipboard")
-      button.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
-        </svg>`
+      button.innerHTML = `<i class="codicon codicon-copy" aria-hidden="true"></i>`
 
       // Store the text content for copying
       button.addEventListener("click", async e => {
@@ -256,11 +256,13 @@ export default class Markdown extends Base {
    * @returns {string} Rendered heading HTML with id attribute.
    * @private
    */
-  #renderHeadingAnchor(data) {
-    const {text, depth} = data
+  #renderHeadingAnchor({text, depth}) {
     const id = this.#generateAnchorId(text)
+    const headingAnchor = `<h${depth} id="${id}">${text}</h${depth}>`
 
-    return `<h${depth} toc-reference="${id}">${text}</h${depth}>`
+    console.log("text", text, "depth", depth, "headingAnchor", headingAnchor)
+
+    return headingAnchor
   }
 
   /**
@@ -269,10 +271,10 @@ export default class Markdown extends Base {
    * @param {{type: string, depth?: number, raw?: string, text?: string}} data - Token data emitted by marked.
    * @private
    */
-  #processHeading(data) {
-    if(data.type === "heading") {
-      const {depth,raw,text} = data
+  async #processHeading({type, raw, text, depth}) {
+    if(type === "heading") {
       const id = this.#generateAnchorId(text)
+
       this.#headings.push({depth,raw,text,id})
     }
   }

@@ -1,9 +1,9 @@
 import ConfigDialog from "./ConfigDialog.js"
+import FileDrag from "./FileDrag.js"
 import {error} from "./Logging.js"
 import FileWatcher from "./FileWatcher.js"
-import Markdown from "./Markdown.js"
-import MarkdownFile from "./FileReader.js"
-import Notify from "./Notify.js"
+import MarkdownFile from "./MarkdownFile.js"
+import {Notify} from "./vendor/toolkit.esm.js"
 import UI from "./UI.js"
 
 document.addEventListener("DOMContentLoaded", main.bind(this))
@@ -34,12 +34,15 @@ async function main() {
     Notify.on("config-dialog-requested", async evt => await getConfigDialog(evt))
     Notify.on("file-dialog-requested", async evt => await openFileDialog(evt))
     Notify.on("file-selected", async evt => await loadContent(evt))
+    Notify.on("file-dropped", evt => handleFileDropped(evt))
     Notify.on("content-loaded", async evt => await displayContent(evt))
     Notify.on("file-loaded", async evt => await handleFileLoaded(evt))
     Notify.on("hot-reload-changed", async evt => await handleHotReloadChange(evt))
 
     const ui = new UI()
     await ui.initializeUI()
+
+    await FileDrag.initializeFileDrag()
 
     // Initialize file watcher
     const fileWatcher = new FileWatcher()
@@ -53,14 +56,14 @@ async function main() {
       Notify.emit("file-selected", cliFilePath)
     } else {
       setTimeout(() => {
-        // Notify.emit("file-selected", "/projects/git/mdv/work/fedora-machine-sync-guide.md")
+        // Notify.emit("file-selected", "/home/gesslar/SYNTAX-HIGHLIGHTING-MAYBE.md")
+        Notify.emit("file-selected", "/projects/git/mdv/work/fedora-machine-sync-guide.md")
         // Notify.emit("file-selected", "/projects/git/mdv/work/README.md")
         // Notify.emit("file-selected", "/home/gesslar/Downloads/README (2).md")
       }, 100)
     }
 
     markdownFile.remove()
-
   } catch(e) {
     error(`${e.message}\n${e.stack}`)
   }
@@ -91,9 +94,23 @@ async function loadContent({detail: path}) {
 async function displayContent({detail}) {
   const content = typeof detail === "string" ? detail : detail.content
   const hotReload = detail?.hotReload || false
+  const markdownModule = await import("./Markdown.js")
+  const {Markdown} = markdownModule
+  const markdown = new Markdown()
 
-  const markdown = new Markdown(content)
-  await markdown.render(hotReload)
+  await markdown.render(content, hotReload)
+}
+
+function handleFileDropped({detail: dragEvent}) {
+  const file = dragEvent.dataTransfer?.files?.[0]
+
+  if(!file)
+    return
+
+  const path = window.mdv.fs.getPathForFile(file)
+
+  if(path)
+    Notify.emit("file-selected", path)
 }
 
 async function handleFileLoaded({detail: filePath}) {
@@ -107,22 +124,3 @@ async function handleHotReloadChange() {
   if(fileWatcher)
     await fileWatcher.handleHotReloadChange()
 }
-
-// /** Loads a bundled debug file into the stage; intended for local development. */
-// async function loadDebugFile() {
-//   // const debugFile = "/projects/git/mdv/work/fedora-machine-sync-guide.md"
-//   const debugFile = "/projects/git/mdv/work/README.md"
-//   const content = await MarkdownFile.loadFileFromPath(debugFile)
-
-//   if(content)
-//     await app.UI.displayContent(content)
-//   else
-//     error(`Could not read file from source: ${debugFile}`)
-// }
-
-/*
-  this should go in Document
-
-  const marked = new Marked()
-  await marked.initializeMarked()
-*/

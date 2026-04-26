@@ -17,7 +17,13 @@
     "minor": "npm version minor",
     "major": "npm version major",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "make:squirrel": "electron-forge make --targets=@electron-forge/maker-squirrel",
+    "make:zip": "electron-forge make --targets=@electron-forge/maker-zip",
+    "make:deb": "electron-forge make --targets=@electron-forge/maker-deb",
+    "make:rpm": "electron-forge make --targets=@electron-forge/maker-rpm",
+    "make:appimage": "electron-forge make --targets=@reforged/maker-appimage",
+    "make:flatpak": "electron-forge make --targets=@electron-forge/maker-flatpak -- --ccache"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -30,22 +36,22 @@
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron/fuses": "^1.8.0",
     "@gesslar/uglier": "^2.4.1",
-    "@highlightjs/cdn-assets": "^11.11.1",
     "@reforged/maker-appimage": "^5.2.0",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@tauri-apps/cli": "^2.10.1",
-    "dompurify": "^3.4.1",
     "electron": "^41.3.0",
     "eslint": "^10.2.1",
     "eslint-plugin-jsdoc": "^62.9.0",
     "globals": "^17.5.0",
-    "marked": "^18.0.2",
-    "marked-highlight": "^2.2.4",
     "nodemon": "^3.1.14",
     "patch-package": "^8.0.1"
   },
   "dependencies": {
     "@gesslar/toolkit": "^5.2.0",
-    "electron-squirrel-startup": "^1.0.1"
+    "@highlightjs/cdn-assets": "^11.11.1",
+    "@vscode/codicons": "^0.0.45",
+    "dompurify": "^3.4.1",
+    "electron-squirrel-startup": "^1.0.1",
+    "marked": "^18.0.2",
+    "marked-highlight": "^2.2.4"
   }
 }

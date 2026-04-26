@@ -74,4 +74,16 @@ Settings are persisted across sessions.
 
 ## License
 
-[0BSD](LICENSE)
+`mdv` is released under the [0BSD](LICENSE).
+
+This package includes or depends on third-party components under their own
+licenses:
+
+| Dependency | License |
+| --- | --- |
+| [@gesslar/toolkit](https://github.com/gesslar/toolkit) | 0BSD |
+| [@highlightjs/cdn-assets](https://github.com/highlightjs/highlight.js) | BSD-3-Clause |
+| [dompurify](https://github.com/cure53/DOMPurify) | (MPL-2.0 OR Apache-2.0) |
+| [electron-squirrel-startup](https://github.com/mongodb-js/electron-squirrel-startup) | Apache-2.0 |
+| [marked](https://github.com/markedjs/marked) | MIT |
+| [marked-highlight](https://github.com/markedjs/marked-highlight) | MIT |

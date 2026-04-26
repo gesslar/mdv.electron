@@ -1,18 +1,16 @@
 @font-face {
-  font-family: 'Noto Sans';
-  src: url('./NotoSans-Italic-VariableFont_wdth,wght.ttf') format('ttf'),
-    url('./NotoSans-VariableFont_wdth,wght.ttf') format('ttf');
-  font-weight: normal;
+  font-family: 'Raleway';
+  src: url('./Raleway-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Roboto';
-  src: url('./Roboto-Regular.woff2') format('woff2'),
-    url('./Roboto-Regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
+  font-family: 'Raleway';
+  src: url('./Raleway-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -30,15 +28,6 @@
   src: url('./VictorMono-ThinItalic.woff2') format('woff2'),
     url('./VictorMono-ThinItalic.woff') format('woff');
   font-weight: 100;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('./Roboto-Italic.woff2') format('woff2'),
-    url('./Roboto-Italic.woff') format('woff');
-  font-weight: normal;
   font-style: italic;
   font-display: swap;
 }

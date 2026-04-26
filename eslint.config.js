@@ -4,7 +4,7 @@ import uglify from "@gesslar/uglier"
 
 export default [
   {ignores: ["**/vendor/**"]},
-  ...uglify({
+...uglify({
     with: [
       "lints-js",
       "lints-jsdoc",

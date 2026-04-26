@@ -1,0 +1,15 @@
+diff --git a/node_modules/@malept/electron-installer-flatpak/src/installer.js b/node_modules/@malept/electron-installer-flatpak/src/installer.js
+index a2c4278..2dd7ba1 100644
+--- a/node_modules/@malept/electron-installer-flatpak/src/installer.js
++++ b/node_modules/@malept/electron-installer-flatpak/src/installer.js
+@@ -176,7 +176,9 @@ class FlatpakInstaller extends common.ElectronInstaller {
+       extraExports: extraExports,
+       extraFlatpakBuilderArgs: this.options.extraFlatpakBuilderArgs,
+       files: files.concat(this.options.files),
+-      symlinks: symlinks.concat(this.options.symlinks)
++      symlinks: symlinks.concat(this.options.symlinks),
++      workingDir: this.options.workingDir,
++      cleanTmpdirs: this.options.cleanTmpdirs
+     })
+   }
+ }

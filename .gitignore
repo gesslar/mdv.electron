@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 work/
+playground/
 
 # Editor directories and files
 .vscode/*
@@ -28,3 +29,4 @@ work/
 .claude/
 
 out/
+.flatpak-builder/

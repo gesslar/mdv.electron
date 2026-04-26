@@ -1,7 +1,6 @@
 import Base from "./Base.js"
 import {error} from "./Logging.js"
-import Notify from "./Notify.js"
-import Util from "./Util.js"
+import {HTML, Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Manages the on-demand configuration panel and theme selection.
@@ -53,7 +52,7 @@ export default class ConfigDialog extends Base {
     if(this.element)
       return
 
-    const configContent = await Util.loadHTML(this.#contentPath)
+    const configContent = await HTML.loadHTML(this.#contentPath)
     if(!configContent)
       return error("Unable to load configuration content.")
 
@@ -66,7 +65,7 @@ export default class ConfigDialog extends Base {
     panel.id = "config-panel"
     panel.role = "dialog"
 
-    Util.setHTMLContent(panel, configContent)
+    HTML.setHTMLContent(panel, configContent)
     document.body.appendChild(panel)
 
     this.#restoreThemeSettings()
