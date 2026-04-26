@@ -14,7 +14,7 @@ const unixMeta = {
   genericName: 'Markdown Viewer',
   icon: 'src/assets/icons/mdv.svg',
   categories: ['Office', 'Utility'],
-  mimeType: ['text/markdown', 'application/x-markdown'],
+  mimeType: ['text/markdown'],
 };
 
 // Additional fields supported by deb + rpm (not by reforged or flatpak).

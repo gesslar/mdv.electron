@@ -7,7 +7,6 @@ const MD = Object.seal({
   }),
   MIME: Object.freeze({
     "text/markdown": "text/markdown",
-    "application/x-markdown": "application/x-markdown"
   })
 })
 

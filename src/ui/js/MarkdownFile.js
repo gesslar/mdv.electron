@@ -37,7 +37,7 @@ export default class MarkdownFile extends Base {
     return ext && ext.toLocaleLowerCase() in MD.EXT
   }
 
-  #validMimeTypes = Object.freeze(["text/markdown", "application/x-markdown"])
+  #validMimeTypes = Object.freeze(["text/markdown"])
   /**
    * Supported markdown MIME types.
    *

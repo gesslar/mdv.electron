@@ -8,7 +8,7 @@ Icon=mdv
 StartupNotify=true
 StartupWMClass=mdv
 Categories=Office;Utility;
-MimeType=text/markdown;application/x-markdown;
+MimeType=text/markdown;
 Actions=NewEmptyWindow;
 
 [Desktop Action NewEmptyWindow]
