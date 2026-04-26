@@ -13,7 +13,7 @@
   },
   "main": "src/app/index.js",
   "scripts": {
-    "postinstall": "patch-package",
+    "postinstall": "node -e \"if(process.platform!=='win32')require('child_process').execSync('patch-package',{stdio:'inherit'})\"",
     "start": "electron-forge start",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
