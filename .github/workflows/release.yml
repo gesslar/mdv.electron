@@ -1,0 +1,138 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Check version
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      should-release: ${{ steps.check.outputs.should-release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - id: read
+        name: Read version from package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "package.json version: $version"
+      - id: check
+        name: Check if release already exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ steps.read.outputs.version }}"
+          if gh release view "$tag" --json id >/dev/null 2>&1; then
+            echo "Release $tag already exists — nothing to do."
+            echo "should-release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release $tag does not exist — proceeding."
+            echo "should-release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-linux:
+    name: Build linux-x64
+    needs: gate
+    if: needs.gate.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm flatpak flatpak-builder
+      - name: Add Flathub remote
+        run: flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      - name: Install Flatpak runtime/SDK
+        run: |
+          flatpak install --user --noninteractive flathub \
+            org.freedesktop.Platform//24.08 \
+            org.freedesktop.Sdk//24.08 \
+            org.electronjs.Electron2.BaseApp//24.08
+      - run: npm ci
+      - run: npm run make:deb
+      - run: npm run make:rpm
+      - run: npm run make:appimage
+      - run: npm run make:flatpak
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: out/make/**
+          if-no-files-found: error
+
+  build-windows:
+    name: Build win32-x64
+    needs: gate
+    if: needs.gate.outputs.should-release == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run make:squirrel
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win32-x64
+          path: out/make/**
+          if-no-files-found: error
+
+  publish:
+    name: Publish draft release
+    needs: [gate, build-linux, build-windows]
+    if: needs.gate.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ needs.gate.outputs.version }}"
+          gh release create "$tag" \
+            --draft \
+            --title "$tag" \
+            --notes "Draft release for $tag. Review and publish when ready."
+      - name: Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ needs.gate.outputs.version }}"
+          find artifacts -type f -print0 | xargs -0 gh release upload "$tag"
+      - name: Summary
+        run: |
+          {
+            echo "### Draft release v${{ needs.gate.outputs.version }} created"
+            echo ""
+            echo "Review at https://github.com/${{ github.repository }}/releases"
+          } >> "$GITHUB_STEP_SUMMARY"
