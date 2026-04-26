@@ -13,7 +13,7 @@ export default class TOC extends Base {
   /**
    * Construct a TOC object with the Markdown document object.
    *
-   * @param {HTMLUListElement} toc - Prebuilt TOC root element to attach and manage.
+   * @param {HTMLElement} toc - Prebuilt TOC root element to attach and manage.
    */
   constructor(toc) {
     super()
@@ -22,7 +22,29 @@ export default class TOC extends Base {
     toc.id = this.#tocId
 
     this.element = toc
-    this.#tocAnchors = toc.querySelectorAll("a")
+    this.#tocAnchors = toc.querySelectorAll(".toc-link")
+    this.#wireScrollButtons(toc)
+  }
+
+  /**
+   * Wires the sticky scroll-to-top / scroll-to-bottom buttons to the stage.
+   *
+   * @param {HTMLElement} container - TOC container holding the buttons.
+   * @private
+   */
+  #wireScrollButtons(container) {
+    const stage = document.querySelector("#stage")
+    if(!stage)
+      return
+
+    const top = container.querySelector("[data-scroll='top']")
+    const bottom = container.querySelector("[data-scroll='bottom']")
+
+    if(top)
+      this.registerOn("click", () => stage.scrollTo({top: 0, behavior: "smooth"}), top)
+
+    if(bottom)
+      this.registerOn("click", () => stage.scrollTo({top: stage.scrollHeight, behavior: "smooth"}), bottom)
   }
 
   /**
@@ -42,12 +64,8 @@ export default class TOC extends Base {
    * @returns {Promise<TOC>} An instance of TOC
    */
   static async new(mdElement, headingsMetadata) {
-    const element = document.createElement("div")
-    const toc = await this.#createToc(mdElement, headingsMetadata)
-
-    element.appendChild(toc)
-
-    const instance = new TOC(element)
+    const container = await this.#createToc(mdElement, headingsMetadata)
+    const instance = new TOC(container)
 
     return instance
   }
@@ -58,17 +76,20 @@ export default class TOC extends Base {
    * @async
    * @param {HTMLDivElement} mdElement - The Markdown document instance.
    * @param {Array<{id: string, text: string, depth: number}>} headingsMetadata - Heading metadata from markdown parsing
-   * @returns {Promise<HTMLUListElement>} Root TOC element ready for insertion into the DOM.
+   * @returns {Promise<HTMLElement>} TOC container (with header/list/footer) ready for insertion into the DOM.
    * @private
    */
   static async #createToc(mdElement, headingsMetadata) {
-    console.log("mdElement", mdElement)
     const tocHtml = await HTML.loadHTML(this.#contentPath)
 
     /** @type {HTMLDivElement} */
     const tocElement = document.createElement("div")
 
     HTML.setHTMLContent(tocElement, tocHtml)
+
+    /** @type {HTMLElement} */
+    const container = tocElement.querySelector("#toc-mdv-container")
+    container.removeAttribute("id")
 
     /** @type {HTMLTemplateElement} */
     const template = tocElement.querySelector("#toc-item-template")
@@ -77,8 +98,6 @@ export default class TOC extends Base {
     const tocRoot = tocElement.querySelector("#toc-mdv")
 
     headingsMetadata.forEach(headingMeta => {
-      console.log(headingMeta)
-
       const title = headingMeta.text
       const depth = headingMeta.depth
       const id = headingMeta.id
@@ -114,10 +133,7 @@ export default class TOC extends Base {
       tocRoot.appendChild(fragment)
     })
 
-    return tocRoot
-    // const main = document.querySelector("main")
-    // main.prepend(toc)
-    // container.prepend(toc)
+    return container
   }
 
   /**

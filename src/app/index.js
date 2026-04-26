@@ -1,5 +1,5 @@
 import * as TK from "@gesslar/toolkit"
-import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, nativeImage, Menu} from "electron"
+import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, nativeImage, Menu, shell} from "electron"
 import {readFile} from "node:fs/promises"
 import {watch} from "node:fs"
 
@@ -11,6 +11,10 @@ const ui = appDir.parent.getDirectory("ui")
 
 // Done before anything so that the menu doesn't get created.
 Menu.setApplicationMenu(null)
+
+// Sets the X11 WM_CLASS / Wayland app_id Linux uses to group taskbar
+// windows; without it, the launcher binary name ("electron") leaks through.
+electron.commandLine.appendSwitch("class", "mdv")
 
 let activeWatcher = null
 let activeWatcherPath = null
@@ -39,6 +43,24 @@ const createWindow = () => {
   })
 
   win.loadFile(`${ui}/index.html`)
+
+  win.webContents.setWindowOpenHandler(({url}) => {
+    if(/^https?:|^mailto:/i.test(url))
+      shell.openExternal(url)
+
+    return {action: "deny"}
+  })
+
+  win.webContents.on("will-navigate", (event, url) => {
+    const current = win.webContents.getURL()
+    if(url === current)
+      return
+
+    if(/^https?:|^mailto:/i.test(url)) {
+      event.preventDefault()
+      shell.openExternal(url)
+    }
+  })
 
   return win
 }

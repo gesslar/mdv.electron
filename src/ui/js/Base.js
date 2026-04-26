@@ -87,7 +87,8 @@ export default class Base {
 
   /**
    * Resolves a DOM element and optionally registers listener functions on it.
-   * Each listener's return value, when a function, is registered as a disposer.
+   * Each listener's return value, when a function, is registered as a
+   * disposer.
    *
    * @param {string} elementId - Selector passed to querySelector.
    * @param {((element: Element) => (void | (() => void))) | Array<(element: Element) => (void | (() => void))>} [listenerFunctions] - One or more listener initializers.

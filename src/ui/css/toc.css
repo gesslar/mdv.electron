@@ -1,13 +1,55 @@
 [id^="MDV-TOC-"] {
   grid-column: 2;
   height: 100%;
-  overflow-y: auto;
   position: sticky;
   top: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .toc-nav {
+    flex: 0 0 auto;
+    display: flex;
+    background-color: var(--color-white);
+  }
+
+  .dark & .toc-nav {
+    background-color: var(--color-zinc-950);
+  }
+
+  .toc-scroll-top {
+    border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 20%, transparent);
+  }
+
+  .toc-scroll-bottom {
+    border-top: 1px solid color-mix(in oklab, var(--color-pink-500) 20%, transparent);
+  }
+
+  .toc-nav-btn {
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    color: var(--color-pink-500);
+    padding: var(--spacing-md) var(--spacing-lg);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--text-base);
+    transition: background-color 100ms ease-out;
+  }
+
+  .toc-nav-btn:hover {
+    background: color-mix(in oklab, var(--color-pink-500) 12%, transparent);
+  }
 
   ul {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
     padding: 0;
+    margin: 0;
 
     li.toc-item {
       list-style-type: none;

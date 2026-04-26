@@ -4,6 +4,8 @@ import {HTML, Notify} from "./vendor/toolkit.esm.js"
 import TOC from "./TOC.js"
 import Base from "./Base.js"
 
+const DEFAULT_TITLE = document.title
+
 /**
  * Configures marked/hljs and tracks heading metadata during parsing.
  * Designed to be initialized once at startup; headings collected via
@@ -44,6 +46,8 @@ export class Markdown extends Base {
     const element = document.createElement("div")
 
     HTML.setHTMLContent(element, parsed)
+
+    this.#applyDocumentTitle(element)
 
     // Inject copy buttons into code blocks
     this.#injectCopyButtons(element)
@@ -153,6 +157,34 @@ export class Markdown extends Base {
   }
 
   /**
+   * Sets the window title from the document's first H1, and removes that H1
+   * inline when nothing precedes it (the title bar already shows it).
+   *
+   * @param {Element} element - The rendered markdown element.
+   * @private
+   */
+  #applyDocumentTitle(element) {
+    const firstH1 = element.querySelector("h1")
+
+    if(!firstH1) {
+      document.title = DEFAULT_TITLE
+      return
+    }
+
+    document.title = firstH1.textContent.trim() || DEFAULT_TITLE
+
+    if(element.firstElementChild !== firstH1)
+      return
+
+    const id = firstH1.id
+    firstH1.remove()
+
+    const idx = this.#headings.findIndex(h => h.id === id)
+    if(idx !== -1)
+      this.#headings.splice(idx, 1)
+  }
+
+  /**
    * Injects copy buttons into all code blocks in the rendered element.
    *
    * @param {Element} element - The rendered markdown element.
@@ -259,8 +291,6 @@ export class Markdown extends Base {
   #renderHeadingAnchor({text, depth}) {
     const id = this.#generateAnchorId(text)
     const headingAnchor = `<h${depth} id="${id}">${text}</h${depth}>`
-
-    console.log("text", text, "depth", depth, "headingAnchor", headingAnchor)
 
     return headingAnchor
   }

@@ -38,11 +38,16 @@
 
 /* Button Components */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 1);
   border-radius: var(--radius-xs);
   background-color: var(--color-pink-500);
-  padding-inline: calc(var(--spacing) * 5);
+  padding-inline: calc(var(--spacing) * 2);
   padding-block: calc(var(--spacing) * 2);
   font-weight: var(--font-weight-medium);
+  line-height: 1;
   color: var(--color-white);
   box-shadow: var(--shadow-md);
   cursor: pointer;
@@ -52,13 +57,10 @@
   &:hover {
     @media (hover: hover) {
       outline: 1px solid var(--color-zinc-400);
-      transform: scale(1.1);
     }
   }
 
-  &:active {
-    transform: scale(1.05);
-  }
+  &:active {}
 }
 
 .btn-primary {
@@ -69,4 +71,10 @@
 .btn-secondary {
   background-color: var(--color-secondary);
   color: var(--color-white);
+}
+
+.btn-action {
+  background: color-mix(in oklab, var(--color-primary) 25%, var(--color-secondary));
+  min-width: 36px;
+  height: 36px;
 }

@@ -53,10 +53,8 @@ export default class FileWatcher extends Base {
               const content =
                 await window.mdv.fs.readTextFile(this.#currentFilePath)
               Notify.emit("content-loaded", {content, hotReload: true})
-
-              // Scroll will be restored when markdown-rendered event fires
             } catch(err) {
-              error(`Failed to reload file: ${err}`)
+              error(`Failed to reload file: ${err.message}`)
             }
           }
         }),

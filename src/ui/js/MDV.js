@@ -57,7 +57,7 @@ async function main() {
     } else {
       setTimeout(() => {
         // Notify.emit("file-selected", "/home/gesslar/SYNTAX-HIGHLIGHTING-MAYBE.md")
-        Notify.emit("file-selected", "/projects/git/mdv/work/fedora-machine-sync-guide.md")
+        // Notify.emit("file-selected", "/projects/git/mdv/work/fedora-machine-sync-guide.md")
         // Notify.emit("file-selected", "/projects/git/mdv/work/README.md")
         // Notify.emit("file-selected", "/home/gesslar/Downloads/README (2).md")
       }, 100)
@@ -86,9 +86,15 @@ async function openFileDialog() {
 
 async function loadContent({detail: path}) {
   const markdownFile = new MarkdownFile()
-  await markdownFile.loadFileFromPath(path)
-
-  markdownFile.remove()
+  try {
+    await markdownFile.loadFileFromPath(path)
+    const filename = document.querySelector("#filename")
+    filename.textContent = path
+  } catch(e) {
+    error(e.message)
+  } finally {
+    markdownFile.remove()
+  }
 }
 
 async function displayContent({detail}) {
