@@ -22,7 +22,7 @@ const packageMeta = {
   ...unixMeta,
   description: 'A fast, minimal desktop markdown viewer',
   productDescription: 'A fast, minimal desktop markdown viewer with hot reload, syntax highlighting, drag-and-drop, and file association for .md / .markdown / .mkd.',
-  homepage: 'https://github.com/gesslar/mdv',
+  homepage: 'https://github.com/gesslar/mdv.electron',
 };
 
 module.exports = {
@@ -54,7 +54,7 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      platforms: ['darwin', 'linux'],
     },
     {
       name: '@electron-forge/maker-deb',

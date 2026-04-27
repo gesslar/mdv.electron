@@ -16,11 +16,11 @@ A fast, minimal desktop markdown viewer built with Electron and vanilla JavaScri
 
 ## Build from source
 
-Requires [Node.js](https://nodejs.org/) >= 22.
+Requires [Node.js](https://nodejs.org/) >= 24.
 
 ```bash
-git clone https://github.com/gesslar/mdv.git
-cd mdv
+git clone https://github.com/gesslar/mdv.electron.git
+cd mdv.electron
 npm install
 npm start
 ```
@@ -28,18 +28,20 @@ npm start
 ### Packaged distributables
 
 ```bash
-npm run make                                               # all Linux targets
-npx electron-forge make --targets @electron-forge/maker-deb     # just .deb
-npx electron-forge make --targets @electron-forge/maker-rpm     # just .rpm
-npx electron-forge make --targets @reforged/maker-appimage      # just .AppImage
+npm run make           # all configured makers for your platform
+npm run make:deb       # just .deb
+npm run make:rpm       # just .rpm
+npm run make:appimage  # just .AppImage
 ```
 
 Artifacts land in `out/make/`.
 
+For Flatpak, Windows (Squirrel), and macOS targets — plus the prereqs each one needs — see [DEVELOPMENT.md](DEVELOPMENT.md).
+
 ### Fedora (RPM)
 
 ```bash
-npm run make
+npm run make:rpm
 sudo dnf install -y out/make/rpm/x64/mdv-*.x86_64.rpm
 ```
 
@@ -69,12 +71,12 @@ Settings are persisted across sessions.
 - **Runtime**: [Electron](https://www.electronjs.org/) (main + sandboxed preload + renderer)
 - **Packaging**: [Electron Forge](https://www.electronforge.io/) with `maker-deb`, `maker-rpm`, and [`@reforged/maker-appimage`](https://github.com/SpacingBat3/ReForged)
 - **Frontend**: Vanilla JS (ES6 modules), HTML5, CSS3
-- **Markdown**: [marked](https://github.com/markedjs/marked) + [highlight.js](https://highlightjs.org/)
+- **Markdown**: [marked](https://github.com/markedjs/marked) + [marked-highlight](https://github.com/markedjs/marked-highlight) + [highlight.js](https://highlightjs.org/)
 - **Sanitization**: [DOMPurify](https://github.com/cure53/DOMPurify)
 
 ## License
 
-`mdv` is released under the [0BSD](LICENSE).
+`mdv` is released under the [0BSD](LICENSE.txt).
 
 This package includes or depends on third-party components under their own
 licenses:
@@ -83,6 +85,7 @@ licenses:
 | --- | --- |
 | [@gesslar/toolkit](https://github.com/gesslar/toolkit) | 0BSD |
 | [@highlightjs/cdn-assets](https://github.com/highlightjs/highlight.js) | BSD-3-Clause |
+| [@vscode/codicons](https://github.com/microsoft/vscode-codicons) | CC-BY-4.0 |
 | [dompurify](https://github.com/cure53/DOMPurify) | (MPL-2.0 OR Apache-2.0) |
 | [electron-squirrel-startup](https://github.com/mongodb-js/electron-squirrel-startup) | Apache-2.0 |
 | [marked](https://github.com/markedjs/marked) | MIT |

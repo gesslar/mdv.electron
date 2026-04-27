@@ -6,10 +6,10 @@
   "type": "module",
   "license": "0BSD",
   "author": "gesslar <bmw@gesslar.dev>",
-  "homepage": "https://github.com/gesslar/mdv",
+  "homepage": "https://github.com/gesslar/mdv.electron",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gesslar/mdv.git"
+    "url": "git+https://github.com/gesslar/mdv.electron.git"
   },
   "main": "src/app/index.js",
   "scripts": {
