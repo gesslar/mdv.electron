@@ -168,6 +168,7 @@ export class Markdown extends Base {
 
     if(!firstH1) {
       document.title = DEFAULT_TITLE
+
       return
     }
 

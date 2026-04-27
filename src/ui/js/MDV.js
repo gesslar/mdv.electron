@@ -90,6 +90,7 @@ async function loadContent({detail: path}) {
     await markdownFile.loadFileFromPath(path)
     const filename = document.querySelector("#filename")
     filename.textContent = path
+    document.title = path
   } catch(e) {
     error(e.message)
   } finally {
