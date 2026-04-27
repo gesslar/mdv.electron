@@ -36,7 +36,7 @@ npm run make:appimage  # just .AppImage
 
 Artifacts land in `out/make/`.
 
-For Flatpak, Windows (Squirrel), and macOS targets — plus the prereqs each one needs — see [DEVELOPMENT.md](DEVELOPMENT.md).
+Windows (Squirrel), and macOS targets — plus the prereqs each one needs — see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ### Fedora (RPM)
 

@@ -17,7 +17,7 @@ const unixMeta = {
   mimeType: ['text/markdown'],
 };
 
-// Additional fields supported by deb + rpm (not by reforged or flatpak).
+// Additional fields supported by deb + rpm (not by reforged).
 const packageMeta = {
   ...unixMeta,
   description: 'A fast, minimal desktop markdown viewer',
@@ -33,7 +33,7 @@ module.exports = {
     icon: 'src/assets/icons/app',
     // Allowlist what gets copied into resources/app. Packager's default is
     // "everything that isn't a tiny built-in ignore set", which sweeps in
-    // docs, IDE configs, forge config, patches/, .flatpak-builder/, etc.
+    // docs, IDE configs, forge config, patches/, etc.
     ignore: filePath => {
       if(filePath === '') return false
       return !/^\/(src|node_modules|package\.json|package-lock\.json)(\/|$)/.test(filePath)
@@ -88,51 +88,6 @@ module.exports = {
           // desktopFile bypasses the maker's actions/categories/mimeType
           // injection, so the file must carry everything itself.
           desktopFile: desktopFilePath,
-        },
-      },
-    },
-    {
-      name: '@electron-forge/maker-flatpak',
-      platforms: ['linux'],
-      config: {
-        workingDir: path.resolve('.flatpak-builder'),
-        cleanTmpdirs: false,
-        options: {
-          ...packageMeta,
-          id: 'dev.gesslar.mdv',
-          runtimeVersion: '24.08',
-          base: 'org.electronjs.Electron2.BaseApp',
-          baseVersion: '24.08',
-          bin: "mdv",
-          finishArgs: [
-            '--share=ipc',
-            '--socket=x11',
-            '--socket=wayland',
-            '--device=dri',
-            '--filesystem=home:ro',
-          ],
-          // Override the default zypak module to use g++ — the freedesktop
-          // SDK doesn't ship clang++ by default, which zypak's Makefile
-          // assumes. See STUPID.md.
-          modules: [
-            {
-              name: 'zypak',
-              'build-options': {
-                env: {
-                  CC: 'gcc',
-                  CXX: 'g++'
-                },
-              },
-              sources: [
-                {
-                  type: 'git',
-                  url: 'https://github.com/refi64/zypak',
-                  tag: 'v2024.01.17',
-                },
-              ],
-            },
-          ],
-          files: [],
         },
       },
     },

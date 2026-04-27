@@ -11,11 +11,7 @@
   .toc-nav {
     flex: 0 0 auto;
     display: flex;
-    background-color: var(--color-white);
-  }
-
-  .dark & .toc-nav {
-    background-color: var(--color-zinc-950);
+    background-color: var(--surface-app);
   }
 
   .toc-scroll-top {
@@ -64,18 +60,10 @@
       padding-right: 1rem;
 
       &[visible] {
-        border-left: 1px solid var(--color-zinc-500);
+        border-left: 1px solid var(--toc-item-border);
       }
 
       &:not([visible]) {
-        border-left: 1px solid transparent;
-      }
-
-      .dark &[visible] {
-        border-left: 1px solid var(--color-pink-500);
-      }
-
-      .dark &:not([visible]) {
         border-left: 1px solid transparent;
       }
 

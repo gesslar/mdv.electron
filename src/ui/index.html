@@ -10,28 +10,23 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
   <link rel="manifest" href="assets/icons/site.webmanifest">
 
+  <link rel="stylesheet" href="css/mdv.css">
+  <link id="hljs-theme" rel="stylesheet">
+
   <script>
-    // Apply theme immediately to prevent flash
+    // Resolve theme and set the hljs stylesheet href before first paint, so
+    // the correct syntax-highlight palette loads on cold start (no flash).
     const saved = localStorage.getItem("mdv-theme") || "auto"
     let theme
     if (saved === "light" || saved === "dark") {
       theme = saved
     } else {
-      // Resolve "auto" based on system preference
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
       theme = prefersDark ? "dark" : "light"
     }
     document.documentElement.classList.add(theme)
-
-    // Set hljs theme immediately too
-    const hljsTheme = document.getElementById("hljs-theme")
-    if (hljsTheme) {
-      hljsTheme.href = `css/github${theme === "dark" ? "-dark" : ""}.css`
-    }
+    document.getElementById("hljs-theme").href = `css/github${theme === "dark" ? "-dark" : ""}.css`
   </script>
-
-  <link rel="stylesheet" href="css/mdv.css">
-  <link id="hljs-theme" rel="stylesheet" href="css/github-dark.css">
 
   <!-- Application scripts -->
   <script type="module" src="js/MDV.js"></script>

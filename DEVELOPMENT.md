@@ -28,40 +28,6 @@ No extra tooling needed — these build on any modern Linux host:
 | `.rpm`    | `@electron-forge/maker-rpm`        | `out/make/rpm/x64/mdv-*.rpm`          |
 | AppImage  | `@reforged/maker-appimage`         | `out/make/AppImage/x64/MDV-*.AppImage` |
 
-### Linux targets with extra prereqs
-
-#### Flatpak
-
-Needs the flatpak toolchain and the Electron base runtime installed system-wide before `electron-forge make` can produce the artifact.
-
-```bash
-# Fedora
-sudo dnf install flatpak flatpak-builder
-
-# Debian/Ubuntu
-sudo apt install flatpak flatpak-builder
-
-# One-time runtime + SDK + base app pulls (run as your user)
-flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install --user flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.electronjs.Electron2.BaseApp//24.08
-```
-
-Then: `npx electron-forge make --targets @electron-forge/maker-flatpak`
-
-Bump the `24.08` version in `forge.config.cjs` and here if you move to a newer freedesktop runtime.
-
-**SELinux gotcha (Fedora, RHEL).** On `Enforcing` systems, flatpak's final `build-bundle` step fails with `open(O_TMPFILE): Operation not permitted` when writing the `.flatpak` artifact into a directory with the `default_t` SELinux label (which is what `/projects/...` and other non-standard locations get by default). Symptom appears only after a full, successful compile — right at the end.
-
-Workaround: keep `out/` on a `user_home_t`-labeled filesystem by symlinking to somewhere under `$HOME`:
-
-```bash
-rm -rf out
-ln -s ~/mdv-out out
-mkdir -p ~/mdv-out
-```
-
-`out/` is gitignored, so the symlink is purely local. Apply once and rebuild normally.
-
 ### Windows target from Linux
 
 Building the Squirrel `.exe` installer cross-platform from Linux needs Mono and Wine — the Squirrel tooling itself is .NET and runs the installer generator under Wine.

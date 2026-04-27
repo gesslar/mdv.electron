@@ -61,20 +61,11 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm flatpak flatpak-builder
-      - name: Add Flathub remote
-        run: flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-      - name: Install Flatpak runtime/SDK
-        run: |
-          flatpak install --user --noninteractive flathub \
-            org.freedesktop.Platform//24.08 \
-            org.freedesktop.Sdk//24.08 \
-            org.electronjs.Electron2.BaseApp//24.08
+          sudo apt-get install -y rpm
       - run: npm ci
       - run: npm run make:deb
       - run: npm run make:rpm
       - run: npm run make:appimage
-      - run: npm run make:flatpak
       - uses: actions/upload-artifact@v4
         with:
           name: linux-x64

@@ -4,13 +4,8 @@
   display: flex;
   flex-direction: column;
   font-family: var(--font-sans);
-  background-color: var(--color-white);
-  color: var(--color-black);
-}
-
-.dark .app-container {
-  background-color: var(--color-zinc-950);
-  color: var(--color-zinc-100);
+  background-color: var(--surface-app);
+  color: var(--text-primary);
 }
 
 /* Icon */
@@ -74,7 +69,8 @@
 }
 
 .btn-action {
-  background: color-mix(in oklab, var(--color-primary) 25%, var(--color-secondary));
+  background: var(--btn-action-bg);
+  color: var(--btn-action-color);
   min-width: 36px;
   height: 36px;
 }

@@ -43,7 +43,7 @@
         top: 0;
         background-color: transparent;
         box-shadow: none;
-        color: var(--color-zinc-700);
+        color: var(--text-muted);
         cursor: pointer;
 
         &:hover {
@@ -70,7 +70,7 @@
           margin: 1rem 1rem;
 
           .config-section-header {
-            border-bottom: 1px solid var(--color-zinc-800);
+            border-bottom: 1px solid var(--border-subtle);
 
             .config-section-title {
               font-size: 1.24rem;
@@ -98,18 +98,18 @@
                 position: relative;
                 display: inline-flex;
                 align-items: center;
-                color: var(--color-zinc-200);
-                background-color: var(--color-zinc-800);
+                color: var(--text-on-button-neutral);
+                background-color: var(--surface-button-neutral);
                 padding-inline: calc(var(--spacing) * 3);
                 padding-block: calc(var(--spacing) * 2);
                 font-size: var(--text-sm);
                 line-height: calc(1.25 / 0.875);
                 font-weight: var(--font-weight-medium);
-                border: 1px solid var(--color-zinc-900);
+                border: 1px solid var(--border-button-neutral);
                 cursor: pointer;
 
                 &:hover {
-                  background-color: var(--color-zinc-600);
+                  background-color: var(--surface-button-neutral-hover);
                 }
 
                 &:focus {
@@ -149,41 +149,17 @@
   }
 }
 
-/* Theme-specific styles for config panel */
-html.dark #config-panel {
-  background-color: var(--color-zinc-900);
-  color: var(--color-zinc-200);
-  outline-color: var(--color-zinc-600);
-  box-shadow: 1px 1px 15px 2px var(--color-zinc-800);
+#config-panel {
+  background-color: var(--surface-panel);
+  color: var(--text-on-panel);
+  outline-color: var(--outline-panel);
+  box-shadow: var(--panel-shadow);
 
   &::backdrop {
-    background-color: color-mix(in oklab, var(--color-pink-900) 25%, transparent)
+    background-color: var(--panel-backdrop);
   }
-}
 
-html.dark #config-panel .config-close-button {
-  color: var(--color-zinc-400);
-}
-
-html.dark #config-panel .config-close-button:hover {
-  color: color-mix(in oklab, var(--color-pink-500) 65%, transparent);
-}
-
-html.light #config-panel {
-  background-color: var(--color-pink-100);
-  color: var(--color-pink-800);
-  outline-color: var(--color-pink-400);
-  box-shadow: 1px 1px 15px 2px var(--color-pink-500);
-
-  &::backdrop {
-    background-color: color-mix(in oklab, var(--color-zinc-900) 55%, transparent)
+  .config-close-button:hover {
+    color: var(--color-pink-600);
   }
-}
-
-html.light #config-panel .config-close-button {
-  color: var(--color-zinc-700);
-}
-
-html.light #config-panel .config-close-button:hover {
-  color: var(--color-pink-600);
 }

@@ -64,6 +64,61 @@
   /* --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
 }
 
+/* Semantic theme tokens — flip per theme so rules stay theme-agnostic. */
+html.dark {
+  --surface-app: var(--color-zinc-950);
+  --surface-chrome: var(--color-zinc-900);
+  --surface-panel: var(--color-zinc-900);
+  --surface-code: color-mix(in oklab, var(--color-zinc-600) 15%, transparent);
+  --surface-button-neutral: var(--color-zinc-800);
+  --surface-button-neutral-hover: var(--color-zinc-600);
+  --surface-overlay: color-mix(in oklab, var(--color-zinc-800) 80%, transparent);
+  --text-primary: var(--color-zinc-100);
+  --text-muted: var(--color-pink-400);
+  --text-on-panel: var(--color-zinc-200);
+  --text-on-button-neutral: var(--color-zinc-200);
+  --border-subtle: var(--color-zinc-800);
+  --border-strong: var(--color-zinc-600);
+  --border-button-neutral: var(--color-zinc-900);
+  --outline-panel: var(--color-zinc-600);
+  --panel-shadow: 1px 1px 15px 2px var(--color-zinc-800);
+  --panel-backdrop: color-mix(in oklab, var(--color-pink-900) 25%, transparent);
+  --scrollbar-thumb: color-mix(in oklab, var(--color-pink-500) 45%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-500) 75%, transparent);
+  --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(120%) contrast(95%);
+  --toc-item-border: var(--color-pink-500);
+  --btn-action-bg: color-mix(in oklab, var(--color-pink-500) 25%, var(--color-zinc-950));
+  --btn-action-color: var(--color-white);
+  --heading-weight: 200;
+}
+
+html.light {
+  --surface-app: var(--color-white);
+  --surface-chrome: var(--color-pink-100);
+  --surface-panel: var(--color-pink-100);
+  --surface-code: color-mix(in oklab, var(--color-pink-400) 12%, transparent);
+  --surface-button-neutral: var(--color-zinc-200);
+  --surface-button-neutral-hover: var(--color-zinc-400);
+  --surface-overlay: color-mix(in oklab, var(--color-white) 85%, transparent);
+  --text-primary: var(--color-zinc-900);
+  --text-muted: var(--color-pink-800);
+  --text-on-panel: var(--color-pink-800);
+  --text-on-button-neutral: var(--color-zinc-700);
+  --border-subtle: var(--color-pink-400);
+  --border-strong: var(--color-pink-500);
+  --border-button-neutral: var(--color-zinc-400);
+  --outline-panel: var(--color-pink-400);
+  --panel-shadow: 1px 1px 15px 2px var(--color-pink-500);
+  --panel-backdrop: color-mix(in oklab, var(--color-zinc-900) 55%, transparent);
+  --scrollbar-thumb: color-mix(in oklab, var(--color-pink-600) 50%, transparent);
+  --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-600) 85%, transparent);
+  --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(90%) contrast(95%);
+  --toc-item-border: var(--color-zinc-500);
+  --btn-action-bg: color-mix(in oklab, var(--color-pink-500) 35%, var(--color-white));
+  --btn-action-color: var(--color-pink-800);
+  --heading-weight: 300;
+}
+
 /* Box-sizing reset: padding and border count toward declared width/height */
 *,
 *::before,
@@ -94,14 +149,14 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--color-pink-500) 45%, transparent);
+  background: var(--scrollbar-thumb);
   border: 2px solid transparent;
   background-clip: padding-box;
   border-radius: var(--radius-lg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--color-pink-500) 75%, transparent);
+  background: var(--scrollbar-thumb-hover);
   background-clip: padding-box;
 }
 
@@ -117,16 +172,6 @@ html {
   display: none;
   width: 0;
   height: 0;
-}
-
-html.light ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--color-pink-600) 50%, transparent);
-  background-clip: padding-box;
-}
-
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--color-pink-600) 85%, transparent);
-  background-clip: padding-box;
 }
 
 body {
@@ -145,7 +190,7 @@ body {
   header#app-header {
     top: 0;
     width: 100%;
-    background-color: var(--color-zinc-900);
+    background-color: var(--surface-chrome);
     padding: 0.1rem .1em;
 
     #toolbar {
@@ -285,7 +330,6 @@ body {
 
       i {
 
-        /* External link icon styling */
         &.external-link-icon {
           display: inline-block;
           width: 0.875rem;
@@ -297,10 +341,9 @@ body {
           background-position: center;
           vertical-align: baseline;
           opacity: 0.8;
-          /* transition: all var(--default-transition-duration) var(--default-transition-timing-function); */
           transform: scale(1);
           fill: var(--color-pink-500);
-          /* filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(106%) contrast(91%); */
+          filter: var(--link-icon-filter);
 
           &:hover {
             opacity: 1;
@@ -325,7 +368,7 @@ body {
       pre {
         padding: 0.25em 0.5em;
         margin: 1em 0;
-        outline: 1px solid color-mix(in oklab, var(--color-zinc-600) 75%, transparent);
+        outline: 1px solid color-mix(in oklab, var(--border-strong) 75%, transparent);
         border-radius: 6px;
         font-weight: 800;
         font-family: var(--font-mono);
@@ -340,7 +383,7 @@ body {
           font-weight: 600;
           white-space: pre;
           overflow-x: auto;
-          background-color: color-mix(in oklab, var(--color-zinc-600) 15%, transparent);
+          background-color: var(--surface-code);
         }
 
         >code {
@@ -389,7 +432,7 @@ body {
         width: 4ch;
         height: 4ch;
         padding: 0.25em;
-        background-color: color-mix(in oklab, var(--color-zinc-800) 80%, transparent);
+        background-color: var(--surface-overlay);
         border: 1px solid color-mix(in oklab, var(--color-pink-500) 30%, transparent);
         border-radius: var(--radius-sm);
         cursor: pointer;
@@ -483,7 +526,7 @@ body {
       h1 {
         padding-bottom: 0.3em;
         border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 40%, transparent);
-        font-weight: 200;
+        font-weight: var(--heading-weight);
         letter-spacing: var(--tracking-wider);
       }
 
@@ -492,24 +535,16 @@ body {
       h4,
       h5,
       h6 {
-        font-weight: 200;
+        font-weight: var(--heading-weight);
         letter-spacing: var(--tracking-wide);
       }
 
-      /* Theme variants for external link icons */
-      .dark #stage .external-link-icon {
-        filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(120%) contrast(95%);
-      }
-
-      .light #stage .external-link-icon {
-        filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(90%) contrast(95%);
-      }
     }
   }
 
   footer#app-footer {
     width: 100%;
-    background-color: var(--color-zinc-900);
+    background-color: var(--surface-chrome);
     padding: 0.1rem .1em;
 
     #statusbar {
@@ -543,7 +578,7 @@ body {
       }
 
       #filename {
-        color: var(--color-zinc-400);
+        color: var(--text-muted);
       }
     }
   }

@@ -64,13 +64,23 @@ export default class UI extends Base {
 
   /**
    * Initializes the theme based on saved preference or system default.
-   * Called during app startup.
+   * Also wires a matchMedia listener so "auto" follows live OS theme changes.
+   * Called once during app startup.
    *
    * @returns {void}
    */
   initializeTheme() {
     const savedPreference = localStorage.getItem("mdv-theme") || "auto"
+
     this.applyTheme(savedPreference)
+
+    window.matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", () => {
+        const current = localStorage.getItem("mdv-theme") || "auto"
+
+        if(current === "auto")
+          this.applyTheme("auto")
+      })
   }
 
   /**
