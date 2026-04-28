@@ -38,6 +38,7 @@ async function main() {
     Notify.on("content-loaded", async evt => await displayContent(evt))
     Notify.on("file-loaded", async evt => await handleFileLoaded(evt))
     Notify.on("hot-reload-changed", async evt => await handleHotReloadChange(evt))
+    Notify.on("title-change", evt => updateTitle(evt))
 
     const ui = new UI()
     await ui.initializeUI()
@@ -69,6 +70,15 @@ async function main() {
   }
 }
 
+function updateTitle({detail}) {
+  const {title} = detail ?? {}
+
+  if(!title)
+    return
+
+  document.title = title
+}
+
 async function getConfigDialog(evt) {
   const dialog = app[ConfigDialog.name] ?? new ConfigDialog()
 
@@ -87,10 +97,17 @@ async function openFileDialog() {
 async function loadContent({detail: path}) {
   const markdownFile = new MarkdownFile()
   try {
+    // set the initial title that may get overwritten by Markdown:#applyDocumentTitle
+    const parts = path?.split(/[\\\/]/)
+    if(parts && parts.length > 0) {
+      document.title = parts.at(-1)
+    } else {
+      document.title = path
+    }
+
     await markdownFile.loadFileFromPath(path)
     const filename = document.querySelector("#filename")
     filename.textContent = path
-    document.title = path
   } catch(e) {
     error(e.message)
   } finally {

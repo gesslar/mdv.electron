@@ -4,8 +4,6 @@ import {HTML, Notify} from "./vendor/toolkit.esm.js"
 import TOC from "./TOC.js"
 import Base from "./Base.js"
 
-const DEFAULT_TITLE = document.title
-
 /**
  * Configures marked/hljs and tracks heading metadata during parsing.
  * Designed to be initialized once at startup; headings collected via
@@ -165,14 +163,10 @@ export class Markdown extends Base {
    */
   #applyDocumentTitle(element) {
     const firstH1 = element.querySelector("h1")
+    const title = firstH1?.textContent?.trim() || null
 
-    if(!firstH1) {
-      document.title = DEFAULT_TITLE
-
-      return
-    }
-
-    document.title = firstH1.textContent.trim() || DEFAULT_TITLE
+    if(title)
+      Notify.emit("title-change", {title})
 
     if(element.firstElementChild !== firstH1)
       return
