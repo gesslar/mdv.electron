@@ -168,7 +168,7 @@ export class Markdown extends Base {
     if(title)
       Notify.emit("title-change", {title})
 
-    if(element.firstElementChild !== firstH1)
+    if(!firstH1 || element.firstElementChild !== firstH1)
       return
 
     const id = firstH1.id
