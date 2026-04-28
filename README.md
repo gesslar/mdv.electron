@@ -29,9 +29,10 @@ npm start
 
 ```bash
 npm run dist           # all targets your host can produce
-npm run dist:deb       # just .deb
-npm run dist:rpm       # just .rpm
-npm run dist:appimage  # just .AppImage
+npm run dist:deb       # .deb (x64 + arm64)
+npm run dist:rpm       # .rpm (x64 + arm64)
+npm run dist:appimage  # .AppImage (x64 + arm64)
+npm run dist:flatpak   # .flatpak (x64 + arm64)
 ```
 
 Artifacts land in `out/`.
@@ -69,7 +70,7 @@ Settings are persisted across sessions.
 ## Tech stack
 
 - **Runtime**: [Electron](https://www.electronjs.org/) (main + sandboxed preload + renderer)
-- **Packaging**: [electron-builder](https://www.electron.build/) (deb, rpm, AppImage, NSIS, mac zip)
+- **Packaging**: [electron-builder](https://www.electron.build/) (deb, rpm, AppImage, NSIS, mac zip) + [flatpak-builder](https://docs.flatpak.org/en/latest/flatpak-builder.html) wrapper for `.flatpak`
 - **Frontend**: Vanilla JS (ES6 modules), HTML5, CSS3
 - **Markdown**: [marked](https://github.com/markedjs/marked) + [marked-highlight](https://github.com/markedjs/marked-highlight) + [highlight.js](https://highlightjs.org/)
 - **Sanitization**: [DOMPurify](https://github.com/cure53/DOMPurify)

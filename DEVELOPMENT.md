@@ -18,6 +18,7 @@ npm run dist:linux       # all Linux targets (deb + rpm + AppImage)
 npm run dist:deb         # just .deb
 npm run dist:rpm         # just .rpm
 npm run dist:appimage    # just AppImage
+npm run dist:flatpak     # flatpak bundle (x64 + arm64)
 npm run dist:win         # Squirrel.Windows installer
 npm run dist:mac         # macOS .zip (run on macOS)
 npm run package          # unpacked app dir, no installer
@@ -35,6 +36,8 @@ Artifacts land in `out/`.
 | `.rpm`    | `out/mdv-*.x86_64.rpm`                   |
 | `.AppImage` | `out/mdv-*-arm64.AppImage`               |
 | `.AppImage` | `out/mdv-*.AppImage`                     |
+| `.flatpak`  | `out/mdv-*-arm64.flatpak`                |
+| `.flatpak`  | `out/mdv-*-x64.flatpak`                  |
 
 AppImage builds with just Node.js. The `.deb` and `.rpm` targets go through
 `fpm`, which electron-builder downloads on first use; `fpm` is bundled Ruby
@@ -46,6 +49,79 @@ sudo dnf install libxcrypt-compat
 ```
 
 Debian/Ubuntu hosts already provide `libcrypt.so.1` and need nothing extra.
+
+### Flatpak target
+
+Flatpak doesn't go through electron-builder — it wraps the unpacked tree
+electron-builder produces with `--dir`. Manifest lives at
+`build/flatpak/dev.gesslar.mdv.yml`; orchestration lives at
+`scripts/build-flatpak.mjs`.
+
+Host packages:
+
+```bash
+# Fedora
+sudo dnf install flatpak flatpak-builder
+
+# Debian/Ubuntu
+sudo apt install -y flatpak flatpak-builder
+```
+
+One-time runtime install (per arch you intend to build for):
+
+```bash
+flatpak remote-add --user --if-not-exists flathub \
+  https://flathub.org/repo/flathub.flatpakrepo
+
+flatpak install --user flathub \
+  org.freedesktop.Platform//24.08 \
+  org.freedesktop.Sdk//24.08 \
+  org.electronjs.Electron2.BaseApp//24.08
+
+# repeat with --arch=aarch64 for arm64 builds
+flatpak install --user --arch=aarch64 flathub \
+  org.freedesktop.Platform//24.08 \
+  org.freedesktop.Sdk//24.08 \
+  org.electronjs.Electron2.BaseApp//24.08
+```
+
+Cross-arch builds (e.g. arm64 on x86_64) additionally need
+`qemu-user-static` so flatpak-builder can run the foreign-arch SDK
+inside its bwrap sandbox:
+
+```bash
+# Fedora
+sudo dnf install qemu-user-static
+
+# Debian/Ubuntu
+sudo apt install -y qemu-user-static binfmt-support
+```
+
+Then nudge systemd to load the binfmt configs the package shipped:
+
+```bash
+sudo systemctl restart systemd-binfmt
+ls /proc/sys/fs/binfmt_misc/ | grep -i aarch64    # should list qemu-aarch64
+```
+
+If the entry still isn't there, force-register from the shipped configs:
+
+```bash
+sudo systemd-binfmt --unregister 2>/dev/null; sudo systemd-binfmt
+```
+
+Without this, flatpak-builder fails inside the foreign-arch sandbox with
+`bwrap: execvp /bin/sh: Exec format error` (and openh264's `apply_extra`
+script logs a similar warning during dep install).
+
+Bumping the runtime: edit `runtime-version` and `base-version` together
+in `build/flatpak/dev.gesslar.mdv.yml`, then re-run the install lines
+above with the new pin.
+
+Outputs are single-file `.flatpak` bundles installable with
+`flatpak install --user out/mdv-<version>-x64.flatpak`. The intermediate
+`out/flatpak-{repo,build-*,ccache-*}` dirs are scratch space and safe
+to delete.
 
 ### Windows target from Linux
 

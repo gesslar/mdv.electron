@@ -13,7 +13,6 @@
   </description>
   <launchable type="desktop-id">dev.gesslar.mdv.desktop</launchable>
   <url type="homepage">https://github.com/gesslar/mdv.electron</url>
-  <url type="bugtracker">https://github.com/gesslar/mdv.electron/issues</url>
   <developer id="dev.gesslar">
     <name>gesslar</name>
   </developer>
@@ -25,4 +24,30 @@
   <releases>
     <release version="1.0.0" date="2026-04-27"/>
   </releases>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224356.png</image>
+      <caption>Fresh open in light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224418.png</image>
+      <caption>Fresh open in dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224505.png</image>
+      <caption>Settings screen in light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224441.png</image>
+      <caption>Settings screen in dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224611.png</image>
+      <caption>Document open in light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/gesslar/mdv.electron/fb71b559a7b5b6d5dcdb69fd22f0654ae8aeb82c/screenshots/Screenshot_20260427_224604.png</image>
+      <caption>Document open in dark mode</caption>
+    </screenshot>
+  </screenshots>
 </component>

@@ -66,6 +66,10 @@ jobs:
             runner: ubuntu-latest
             artifact-path: out/*.AppImage
             needs-rpmbuild: false
+          - target: flatpak
+            runner: ubuntu-latest
+            artifact-path: out/*.flatpak
+            needs-rpmbuild: false
           - target: win
             runner: ubuntu-latest
             artifact-path: |
@@ -97,6 +101,36 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm
+      - name: Cache flatpak runtimes
+        # Pinned to runtime-version 24.08 in build/flatpak/dev.gesslar.mdv.yml.
+        # Bump the cache key suffix when bumping the runtime so old caches are
+        # not restored after a version change.
+        if: matrix.target == 'flatpak'
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/flatpak
+          key: flatpak-runtimes-24.08-v1
+      - name: Install flatpak toolchain
+        # flatpak-builder shells out to the foreign-arch SDK to run build
+        # commands; without qemu binfmt registered, the aarch64 leg fails with
+        # "bwrap: execvp /bin/sh: Exec format error". docker/setup-qemu-action
+        # registers binfmt_misc handlers host-wide, which bwrap inherits.
+        if: matrix.target == 'flatpak'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub \
+            https://flathub.org/repo/flathub.flatpakrepo
+          for arch in x86_64 aarch64; do
+            flatpak install --user -y --noninteractive --arch=$arch flathub \
+              org.freedesktop.Platform//24.08 \
+              org.freedesktop.Sdk//24.08 \
+              org.electronjs.Electron2.BaseApp//24.08
+          done
+      - uses: docker/setup-qemu-action@v3
+        if: matrix.target == 'flatpak'
+        with:
+          platforms: arm64
       - name: Install wine
         # NSIS itself runs native (linux ELF makensis), but electron-builder
         # still uses winCodeSign under wine for PE header manipulation (asar
