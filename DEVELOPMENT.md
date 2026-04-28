@@ -50,15 +50,29 @@ Debian/Ubuntu hosts already provide `libcrypt.so.1` and need nothing extra.
 ### Windows target from Linux
 
 ```bash
+# Fedora
+sudo dnf install wine
+
+# Debian/Ubuntu
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install -y wine wine32
+
 npm run dist:win
 ```
 
 Output: `out/mdv Setup *.exe` (NSIS installer, x64 + arm64).
 
-NSIS via electron-builder is pure-native — `makensis` ships as a Linux ELF
-binary, so no Mono and no Wine are required. The installer registers the
-`.md` / `.markdown` / `.mkd` file associations from the `fileAssociations`
-block in `electron-builder.cjs`; uninstalling cleans them up.
+NSIS itself runs native — `makensis` ships as a Linux ELF binary — but
+electron-builder uses `winCodeSign` under wine to write the asar integrity
+hash, apply `electronFuses` settings, and update icon resources on the
+bundled `mdv.exe`. That happens for every Windows build, signed or not, so
+wine is required even though we don't sign and don't use Squirrel. Mono is
+not needed (that was a Squirrel-only requirement).
+
+The installer registers the `.md` / `.markdown` / `.mkd` file associations
+from the `fileAssociations` block in `electron-builder.cjs`; uninstalling
+cleans them up.
 
 ### macOS target
 

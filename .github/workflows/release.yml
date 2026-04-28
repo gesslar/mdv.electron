@@ -86,6 +86,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm
+      - name: Install wine
+        # NSIS itself runs native (linux ELF makensis), but electron-builder
+        # still uses winCodeSign under wine for PE header manipulation (asar
+        # integrity hash, fuses, icon resources) on the bundled mdv.exe — for
+        # every Windows build, signed or not.
+        if: matrix.target == 'win'
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y wine wine32
       - run: npm ci
       - run: npm run dist:${{ matrix.target }}
       - uses: actions/upload-artifact@v4
