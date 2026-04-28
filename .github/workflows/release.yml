@@ -49,25 +49,36 @@ jobs:
     name: Build ${{ matrix.target }}
     needs: gate
     if: needs.gate.outputs.should-release == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - target: deb
+            runner: ubuntu-latest
             artifact-path: out/*.deb
             needs-rpmbuild: false
           - target: rpm
+            runner: ubuntu-latest
             artifact-path: out/*.rpm
             needs-rpmbuild: true
           - target: appimage
+            runner: ubuntu-latest
             artifact-path: out/*.AppImage
             needs-rpmbuild: false
           - target: win
+            runner: ubuntu-latest
             artifact-path: |
               out/*.exe
               out/*.exe.blockmap
               out/latest.yml
+            needs-rpmbuild: false
+          - target: mac
+            runner: macos-latest
+            artifact-path: |
+              out/*.zip
+              out/*.zip.blockmap
+              out/latest-mac.yml
             needs-rpmbuild: false
     steps:
       - uses: actions/checkout@v6
