@@ -24,9 +24,9 @@
     "package": "electron-builder --dir",
     "dist": "electron-builder --publish never",
     "dist:linux": "electron-builder --linux --publish never",
-    "dist:deb": "electron-builder --linux deb --publish never",
-    "dist:rpm": "electron-builder --linux rpm --publish never",
-    "dist:appimage": "electron-builder --linux AppImage --publish never",
+    "dist:deb": "electron-builder --linux deb --x64 --arm64 --publish never",
+    "dist:rpm": "electron-builder --linux rpm --x64 --arm64 --publish never",
+    "dist:appimage": "electron-builder --linux AppImage --x64 --arm64 --publish never",
     "dist:win": "electron-builder --win --publish never",
     "dist:mac": "electron-builder --mac --publish never",
     "clean": "node scripts/clean-out.mjs"
