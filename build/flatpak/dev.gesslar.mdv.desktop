@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=mdv
+GenericName=Markdown Viewer
+Comment=A fast, minimal desktop markdown viewer
+Exec=mdv %F
+Icon=dev.gesslar.mdv
+Terminal=false
+Categories=Office;Utility;
+MimeType=text/markdown;
+StartupNotify=true
+StartupWMClass=mdv

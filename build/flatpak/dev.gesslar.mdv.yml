@@ -1,0 +1,48 @@
+# Flatpak manifest for mdv. Built by scripts/build-flatpak.mjs after
+# `electron-builder --linux --dir` produces out/linux-unpacked (or the
+# arm64 variant), which the script normalises to out/flatpak-app so this
+# manifest can reference a single deterministic path.
+#
+# Bumping the runtime: change runtime-version AND base-version together,
+# and `flatpak install flathub org.freedesktop.Platform//<ver>
+# org.freedesktop.Sdk//<ver> org.electronjs.Electron2.BaseApp//<ver>`
+# before rebuilding.
+app-id: dev.gesslar.mdv
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '24.08'
+command: mdv
+separate-locales: false
+
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=home
+
+modules:
+  - name: mdv
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/mdv
+      - cp -a app/. /app/mdv/
+      - install -Dm755 mdv-wrapper.sh /app/bin/mdv
+      - install -Dm644 dev.gesslar.mdv.desktop /app/share/applications/dev.gesslar.mdv.desktop
+      - install -Dm644 dev.gesslar.mdv.metainfo.xml /app/share/metainfo/dev.gesslar.mdv.metainfo.xml
+      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/dev.gesslar.mdv.png
+    sources:
+      - type: dir
+        path: ../../out/flatpak-app
+        dest: app
+      - type: file
+        path: mdv-wrapper.sh
+      - type: file
+        path: dev.gesslar.mdv.desktop
+      - type: file
+        path: dev.gesslar.mdv.metainfo.xml
+      - type: file
+        path: ../../src/assets/icons/android-chrome-512x512.png
+        dest-filename: icon.png

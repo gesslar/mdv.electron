@@ -27,6 +27,7 @@
     "dist:deb": "electron-builder --linux deb --x64 --arm64 --publish never",
     "dist:rpm": "electron-builder --linux rpm --x64 --arm64 --publish never",
     "dist:appimage": "electron-builder --linux AppImage --x64 --arm64 --publish never",
+    "dist:flatpak": "node scripts/build-flatpak.mjs",
     "dist:win": "electron-builder --win --publish never",
     "dist:mac": "electron-builder --mac --publish never",
     "clean": "node scripts/clean-out.mjs"

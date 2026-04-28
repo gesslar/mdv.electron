@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.gesslar.mdv</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>0BSD</project_license>
+  <name>mdv</name>
+  <summary>A fast, minimal desktop markdown viewer</summary>
+  <description>
+    <p>
+      mdv is an offline markdown viewer with hot reload, syntax highlighting,
+      drag-and-drop, and file association for .md / .markdown / .mkd.
+    </p>
+  </description>
+  <launchable type="desktop-id">dev.gesslar.mdv.desktop</launchable>
+  <url type="homepage">https://github.com/gesslar/mdv.electron</url>
+  <url type="bugtracker">https://github.com/gesslar/mdv.electron/issues</url>
+  <developer id="dev.gesslar">
+    <name>gesslar</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <categories>
+    <category>Office</category>
+    <category>Utility</category>
+  </categories>
+  <releases>
+    <release version="1.0.0" date="2026-04-27"/>
+  </releases>
+</component>
