@@ -28,6 +28,10 @@ contextBridge.exposeInMainWorld("mdv", {
     }
   },
 
+  titlebar: {
+    setOverlay: options => ipcRenderer.invoke("titlebar:set-overlay", options)
+  },
+
   log: {
     trace: message => ipcRenderer.send("log", "trace", message),
     debug: message => ipcRenderer.send("log", "debug", message),

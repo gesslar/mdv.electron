@@ -157,6 +157,7 @@
 
   &::backdrop {
     background-color: var(--panel-backdrop);
+    top: env(titlebar-area-height, 36px);
   }
 
   .config-close-button:hover {

@@ -56,12 +56,10 @@
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-lg: 0.5rem;
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* Transitions */
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
 }
 
 /* Semantic theme tokens — flip per theme so rules stay theme-agnostic. */
@@ -87,9 +85,8 @@ html.dark {
   --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-500) 75%, transparent);
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(120%) contrast(95%);
   --toc-item-border: var(--color-pink-500);
-  --btn-action-bg: color-mix(in oklab, var(--color-pink-500) 25%, var(--color-zinc-950));
-  --btn-action-color: var(--color-white);
   --heading-weight: 200;
+  --shadow-md: 0 4px 6px -1px rgb(255 255 255 / 0.1), 0 2px 4px -2px rgb(255 255 255 / 0.1);
 }
 
 html.light {
@@ -114,9 +111,8 @@ html.light {
   --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-600) 85%, transparent);
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(90%) contrast(95%);
   --toc-item-border: var(--color-zinc-500);
-  --btn-action-bg: color-mix(in oklab, var(--color-pink-500) 35%, var(--color-white));
-  --btn-action-color: var(--color-pink-800);
   --heading-weight: 300;
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* Box-sizing reset: padding and border count toward declared width/height */
@@ -188,39 +184,66 @@ body {
   color 100ms ease-out;
 
   header#app-header {
-    top: 0;
-    width: 100%;
+    flex: 0 0 auto;
+    height: env(titlebar-area-height, 36px);
     background-color: var(--surface-chrome);
-    padding: 0.1rem .1em;
 
-    #toolbar {
-      margin: 0;
-      display: flex;
-      gap: 0.1em;
-      justify-content: flex-start;
-      padding: 0 0.1em;
+    #titlebar {
+      position: fixed;
+      left: env(titlebar-area-x, 0);
+      top: env(titlebar-area-y, 0);
+      width: env(titlebar-area-width, 100%);
+      height: env(titlebar-area-height, 36px);
+      -webkit-app-region: drag;
       user-select: none;
       -webkit-user-select: none;
-      margin-inline: auto;
+      display: flex;
       align-items: center;
+      gap: 0.25em;
+      padding: 0 0.25em;
 
-      #toolbar-left {
-        padding-inline-start: 0;
+      #titlebar-left,
+      #titlebar-right {
         display: flex;
         align-items: center;
+        gap: 0.1em;
+        -webkit-app-region: no-drag;
         font-size: var(--text-sm);
         line-height: calc(1.25 / 0.875);
         font-weight: var(--font-weight-medium);
       }
 
-      #toolbar-right {
-        padding-inline-start: 0;
-        display: flex;
-        align-items: center;
-        font-size: var(--text-sm);
-        line-height: calc(1.25 / 0.875);
-        font-weight: var(--font-weight-medium);
+      #titlebar-right {
         margin-left: auto;
+      }
+
+      .toolbutton {
+        background-color: var(--surface-chrome);
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+      }
+
+      #titlebar-title {
+        flex: 1;
+        margin: 0;
+        text-align: left;
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-medium);
+        letter-spacing: var(--tracking-wide);
+        color: var(--text-on-panel);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+      }
+
+      .btn-action {
+        -webkit-app-region: no-drag;
+        height: calc(env(titlebar-area-height, 36px) - 6px);
+        min-height: 0;
+        background: var(--btn-action-bg);
+        color: var(--btn-action-color);
       }
     }
   }
