@@ -70,13 +70,22 @@ async function main() {
   }
 }
 
+function setTitle(title) {
+  document.title = title
+  const titlebarTitle = document.querySelector("#titlebar-title")
+  if(titlebarTitle) {
+    titlebarTitle.textContent = title
+    titlebarTitle.title = title
+  }
+}
+
 function updateTitle({detail}) {
   const {title} = detail ?? {}
 
   if(!title)
     return
 
-  document.title = title
+  setTitle(title)
 }
 
 async function getConfigDialog(evt) {
@@ -99,11 +108,7 @@ async function loadContent({detail: path}) {
   try {
     // set the initial title that may get overwritten by Markdown:#applyDocumentTitle
     const parts = path?.split(/[\\\/]/)
-    if(parts.length > 0) {
-      document.title = parts.at(-1)
-    } else {
-      document.title = path
-    }
+    setTitle(parts.length > 0 ? parts.at(-1) : path)
 
     await markdownFile.loadFileFromPath(path)
     const filename = document.querySelector("#filename")

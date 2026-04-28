@@ -28,6 +28,9 @@ export default class UI extends Base {
     ["#action-config-button", () => Notify.request("config-dialog-requested")],
     ["#action-open-button", () => Notify.emit("file-dialog-requested")],
   ]))
+  #shortcuts = Object.freeze(new Map([
+    ["ctrl+o", "#action-open-button"],
+  ]))
   #observer
   #markdown
   #currentTheme = null
@@ -50,6 +53,8 @@ export default class UI extends Base {
         () => Notify.on("click", action, document.querySelector(e))
       )
     })
+
+    this.registerOn("keydown", evt => this.#handleShortcut(evt), document)
 
     this.registerOn("drag-in", evt => this.#dragIn(evt))
     this.registerOn("drag-out", evt => this.#dragOut(evt))
@@ -109,6 +114,48 @@ export default class UI extends Base {
     hljsTheme.href = `css/github${resolvedTheme === "dark" ? "-dark" : ""}.css`
 
     this.#currentTheme = resolvedTheme
+    this.#syncTitleBarOverlay()
+  }
+
+  /**
+   * Resolves a CSS custom property to a `#rrggbb` string by routing it
+   * through a 1×1 canvas, which flattens any color space (oklch, etc.)
+   * to sRGB bytes that Electron's titleBarOverlay can consume.
+   *
+   * @param {string} varName - CSS custom property name, including leading `--`.
+   * @returns {string|null} Hex color, or null if the property is unset.
+   * @private
+   */
+  #resolveCssColor(varName) {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue(varName)
+      .trim()
+
+    if(!value)
+      return null
+
+    const ctx = document.createElement("canvas").getContext("2d")
+    ctx.fillStyle = value
+    ctx.fillRect(0, 0, 1, 1)
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
+
+    return `#${[r, g, b].map(n => n.toString(16).padStart(2, "0")).join("")}`
+  }
+
+  /**
+   * Pushes the current theme's chrome + symbol colors to the system
+   * titlebar overlay. No-op on macOS (handled in main).
+   *
+   * @private
+   */
+  #syncTitleBarOverlay() {
+    const color = this.#resolveCssColor("--surface-chrome")
+    const symbolColor = this.#resolveCssColor("--text-muted")
+
+    if(!color || !symbolColor)
+      return
+
+    window.mdv?.titlebar?.setOverlay({color, symbolColor})
   }
 
   /**
@@ -137,6 +184,29 @@ export default class UI extends Base {
 
       return false
     }
+  }
+
+  /**
+   * Dispatches keyboard shortcuts to the same actions wired to action buttons.
+   *
+   * @param {KeyboardEvent} evt - Keyboard event.
+   * @private
+   */
+  #handleShortcut(evt) {
+    const mod = evt.ctrlKey || evt.metaKey ? "ctrl+" : ""
+    const key = `${mod}${evt.key.toLowerCase()}`
+    const buttonId = this.#shortcuts.get(key)
+
+    if(!buttonId)
+      return
+
+    const action = this.#actions.get(buttonId)
+
+    if(!action)
+      return
+
+    this.preventDefaults(evt)
+    action()
   }
 
   /**

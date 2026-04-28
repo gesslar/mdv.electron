@@ -1,5 +1,5 @@
 import * as TK from "@gesslar/toolkit"
-import {app as electron, BrowserWindow, dialog, globalShortcut, ipcMain, nativeImage, Menu, shell} from "electron"
+import {app as electron, BrowserWindow, dialog, ipcMain, nativeImage, Menu, shell} from "electron"
 import {readFile} from "node:fs/promises"
 import {watch} from "node:fs"
 
@@ -32,6 +32,11 @@ const createWindow = () => {
   const win = new BrowserWindow({
     fullscreenable: true,
     icon: appIcon,
+    titleBarStyle: "hidden",
+    ...(process.platform !== "darwin" ? {titleBarOverlay: true} : {}),
+    titleBarOverlay: {
+      color: "#abcdef00"
+    },
     // frame: false,
     type: "desktop",
     webPreferences: {
@@ -104,16 +109,30 @@ ipcMain.handle("watcher:watch", (event, path) => {
 
 ipcMain.handle("watcher:unwatch", () => stopWatcher())
 
+ipcMain.handle("titlebar:set-overlay", (event, options) => {
+  if(process.platform === "darwin")
+    return
+
+  const win = BrowserWindow.fromWebContents(event.sender)
+  win?.setTitleBarOverlay(options)
+})
+
 ipcMain.on("log", (_event, level, message) => {
   const method = console[level] ?? console.log
   method.call(console, "[mdv]", message)
 })
 
 electron.whenReady().then(() => {
-  createWindow()
+  const win = createWindow()
 
-  globalShortcut.register("CommandOrControl+Shift+I", () => {
-    BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools()
+  win.webContents.on("before-input-event", (event, input) => {
+    const key = input.key.toLowerCase()
+
+    if(input.control && input.shift && key === "i")
+      BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools()
+
+    else if(input.control && key === "w")
+      BrowserWindow.getFocusedWindow()?.close()
   })
 
   Disposer.register(
