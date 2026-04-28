@@ -4,7 +4,7 @@
 
 ```bash
 npm install       # once
-npm start         # dev run via electron-forge
+npm start         # dev run via electron .
 npm run lint      # eslint over src/
 npm run lint:fix  # autofix
 ```
@@ -12,25 +12,42 @@ npm run lint:fix  # autofix
 ## Building distributables
 
 ```bash
-npm run make                                                  # every maker your host supports
-npx electron-forge make --targets <maker-id>                  # just one
+npm run dist             # all targets your host can produce
+npm run dist:linux       # all Linux targets (deb + rpm + AppImage)
+npm run dist:deb         # just .deb
+npm run dist:rpm         # just .rpm
+npm run dist:appimage    # just AppImage
+npm run dist:win         # Squirrel.Windows installer
+npm run dist:mac         # macOS .zip (run on macOS)
+npm run package          # unpacked app dir, no installer (for sanity-checking the bundle)
 ```
 
-Artifacts land in `out/make/`.
+Artifacts land in `out/`.
 
-### Linux targets that work with just Node.js
+### Linux targets
 
-No extra tooling needed — these build on any modern Linux host:
+| Target    | Output                                  |
+|-----------|------------------------------------------|
+| `.deb`    | `out/MDV_*_amd64.deb`                    |
+| `.rpm`    | `out/MDV-*.x86_64.rpm`                   |
+| AppImage  | `out/MDV-*.AppImage`                     |
 
-| Target    | Maker                              | Output                                |
-|-----------|------------------------------------|---------------------------------------|
-| `.deb`    | `@electron-forge/maker-deb`        | `out/make/deb/x64/mdv_*.deb`          |
-| `.rpm`    | `@electron-forge/maker-rpm`        | `out/make/rpm/x64/mdv-*.rpm`          |
-| AppImage  | `@reforged/maker-appimage`         | `out/make/AppImage/x64/MDV-*.AppImage` |
+AppImage builds with just Node.js. The `.deb` and `.rpm` targets go through
+`fpm`, which electron-builder downloads on first use; `fpm` is bundled Ruby
+that links against `libcrypt.so.1`. Fedora 41+ ships `libcrypt.so.2` only,
+so on Fedora hosts you need the compat library once:
+
+```bash
+sudo dnf install libxcrypt-compat
+```
+
+Debian/Ubuntu hosts already provide `libcrypt.so.1` and need nothing extra.
 
 ### Windows target from Linux
 
-Building the Squirrel `.exe` installer cross-platform from Linux needs Mono and Wine — the Squirrel tooling itself is .NET and runs the installer generator under Wine.
+Building the Squirrel `.exe` installer cross-platform from Linux needs Mono
+and Wine — Squirrel.Windows is .NET and runs the installer generator under
+Wine.
 
 ```bash
 # Fedora
@@ -39,22 +56,32 @@ sudo dnf install mono-devel wine
 # Debian/Ubuntu
 sudo apt install mono-devel wine
 
-npx electron-forge make --targets @electron-forge/maker-squirrel --platform win32
+npm run dist:win
 ```
 
-Output: `out/make/squirrel.windows/x64/MDV-*.Setup.exe`
+Output: `out/MDV Setup *.exe`
 
-Building on Windows itself needs none of this — just Node.js + npm + `npm run make`.
+Building on Windows itself needs none of this — just Node.js + npm + `npm run dist:win`.
 
 ### macOS target
 
-Build on macOS. Cross-building a signed/notarised `.app` from Linux isn't supported by Forge; the `.zip` maker is configured for `platforms: ['darwin']`.
+Build on macOS. Cross-building a signed/notarised `.app` from Linux isn't
+practical; the mac target is a `.zip` of the unsigned `.app`, which mac users
+unpack and drag into `/Applications`.
 
 ## Under the hood
 
-### Patched dependency
+### Packaging stack
 
-`electron-installer-redhat` has a known bug on Fedora 41+ (rpm 4.20+). We carry the exact pending upstream fix ([PR #344](https://github.com/electron-userland/electron-installer-redhat/pull/344)) locally via [`patch-package`](https://github.com/ds300/patch-package). The patch lives in `patches/electron-installer-redhat+3.4.0.patch` and is reapplied automatically via the `postinstall` script. See `STUPID.md` for the full story and removal path.
+`electron-builder` reads `electron-builder.cjs` at the repo root.
+That single file replaces what used to be `forge.config.cjs` plus the
+`@electron-forge/*` and `@reforged/maker-appimage` makers. See
+`STUPID.md` for the migration backstory (RPM bug on Fedora 41+).
+
+The Linux `.desktop` entry — including `StartupWMClass=mdv` so Wayland/GNOME
+match the running window's app_id (set via `--class=mdv` in
+`src/app/index.js`) to the installed launcher — is declared inline in
+`electron-builder.cjs` under `linux.desktop`.
 
 ### Preload / IPC boundary
 
