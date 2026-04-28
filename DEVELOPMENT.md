@@ -19,7 +19,7 @@ npm run dist:rpm         # just .rpm
 npm run dist:appimage    # just AppImage
 npm run dist:win         # Squirrel.Windows installer
 npm run dist:mac         # macOS .zip (run on macOS)
-npm run package          # unpacked app dir, no installer (for sanity-checking the bundle)
+npm run package          # unpacked app dir, no installer
 ```
 
 Artifacts land in `out/`.
@@ -85,12 +85,14 @@ match the running window's app_id (set via `--class=mdv` in
 
 ### Preload / IPC boundary
 
-The renderer never touches `ipcRenderer` directly. All host APIs are exposed via `src/app/preload.cjs` under `window.mdv.*`:
+The renderer never touches `ipcRenderer` directly. All host APIs are exposed
+via `src/app/preload.cjs` under `window.mdv.*`:
 
 - `mdv.cli.getRuntimePath()`, `mdv.cli.getArgs()`
 - `mdv.dialog.openFile(opts)`
 - `mdv.fs.readTextFile(path)`
-- `mdv.watcher.watch(path)` / `unwatch()` / `onChange(cb)` — `onChange` returns an unsubscribe function
+- `mdv.watcher.watch(path)` / `unwatch()` / `onChange(cb)` — `onChange` returns
+  an unsubscribe function
 - `mdv.log.{trace,debug,info,warn,error}(message)`
 
 Main-process handlers for each channel live in `src/app/index.js`.
