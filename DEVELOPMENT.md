@@ -61,7 +61,7 @@ sudo apt install -y wine wine32
 npm run dist:win
 ```
 
-Output: `out/mdv Setup *.exe` (NSIS installer, x64 + arm64).
+Output: `out/mdv.Setup *.exe` (NSIS installer, x64 + arm64).
 
 NSIS itself runs native — `makensis` ships as a Linux ELF binary — but
 electron-builder uses `winCodeSign` under wine to write the asar integrity
