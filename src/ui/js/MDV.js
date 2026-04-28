@@ -99,7 +99,7 @@ async function loadContent({detail: path}) {
   try {
     // set the initial title that may get overwritten by Markdown:#applyDocumentTitle
     const parts = path?.split(/[\\\/]/)
-    if(parts && parts.length > 0) {
+    if(parts.length > 0) {
       document.title = parts.at(-1)
     } else {
       document.title = path
