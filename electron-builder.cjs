@@ -3,7 +3,7 @@ const productDescription = 'A fast, minimal desktop markdown viewer with hot rel
 
 module.exports = {
   appId: 'dev.gesslar.mdv',
-  productName: 'MDV',
+  productName: 'mdv',
   copyright: 'Copyright © gesslar',
   directories: {
     output: 'out'
@@ -26,12 +26,26 @@ module.exports = {
     onlyLoadAppFromAsar: true
   },
   win: {
-    target: [{target: 'squirrel', arch: ['x64']}],
+    target: [{target: 'nsis', arch: ['x64', 'arm64']}],
     icon: 'src/assets/icons/app.ico'
   },
-  squirrelWindows: {
-    name: 'mdv'
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+    allowElevation: true,
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true
   },
+  // NSIS writes the Windows registry keys for these extensions at install
+  // time (and removes them on uninstall) — replaces the manual reg.exe
+  // handler that squirrel-file-assoc.js used to run during Squirrel events.
+  // Linux file associations are declared via linux.desktop.entry.MimeType
+  // below; macOS picks these up automatically (Info.plist).
+  fileAssociations: [
+    {ext: 'md', name: 'Markdown', description: 'Markdown file'},
+    {ext: 'markdown', name: 'Markdown', description: 'Markdown file'},
+    {ext: 'mkd', name: 'Markdown', description: 'Markdown file'}
+  ],
   mac: {
     target: [{target: 'zip', arch: ['x64', 'arm64']}],
     icon: 'src/assets/icons/app.icns',
@@ -39,9 +53,9 @@ module.exports = {
   },
   linux: {
     target: [
-      {target: 'deb', arch: ['x64']},
-      {target: 'rpm', arch: ['x64']},
-      {target: 'AppImage', arch: ['x64']}
+      {target: 'deb', arch: ['x64', 'arm64']},
+      {target: 'rpm', arch: ['x64', 'arm64']},
+      {target: 'AppImage', arch: ['x64', 'arm64']}
     ],
     executableName: 'mdv',
     icon: 'src/assets/icons/android-chrome-512x512.png',
@@ -51,7 +65,7 @@ module.exports = {
     // Wayland/GNOME match the running window's app_id to the launcher.
     desktop: {
       entry: {
-        Name: 'MDV',
+        Name: 'mdv',
         GenericName: 'Markdown Viewer',
         Comment: description,
         Categories: 'Office;Utility;',

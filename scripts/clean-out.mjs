@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+/**
+ * Removes all files from a target directory. Intended as a pre-build  step so
+ * publish commands that glob the directory only pick up the freshly built
+ * package.
+ *
+ * Usage:
+ *   node scripts/clean-out.mjs
+ */
+
+import { DirectoryObject } from "@gesslar/toolkit"
+
+const dirName = "out"
+const target = new DirectoryObject(dirName)
+
+try {
+  if(await target.exists) {
+    const rmdir = async d => {
+      const {files, directories} = await d.read()
+
+      for(const file of files)
+        await file.delete()
+
+      for(const directory of directories)
+        await rmdir(directory)
+
+      await d.delete()
+    }
+
+    await rmdir(target)
+  }
+
+  await target.assureExists()
+} catch(e) {
+  console.error(e.message)
+  process.exit(1)
+}
