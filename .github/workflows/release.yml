@@ -127,7 +127,7 @@ jobs:
               org.freedesktop.Sdk//24.08 \
               org.electronjs.Electron2.BaseApp//24.08
           done
-      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v4
         if: matrix.target == 'flatpak'
         with:
           platforms: arm64
