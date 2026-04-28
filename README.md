@@ -28,21 +28,21 @@ npm start
 ### Packaged distributables
 
 ```bash
-npm run make           # all configured makers for your platform
-npm run make:deb       # just .deb
-npm run make:rpm       # just .rpm
-npm run make:appimage  # just .AppImage
+npm run dist           # all targets your host can produce
+npm run dist:deb       # just .deb
+npm run dist:rpm       # just .rpm
+npm run dist:appimage  # just .AppImage
 ```
 
-Artifacts land in `out/make/`.
+Artifacts land in `out/`.
 
-Windows (Squirrel), and macOS targets — plus the prereqs each one needs — see [DEVELOPMENT.md](DEVELOPMENT.md).
+Windows (NSIS) and macOS targets — see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ### Fedora (RPM)
 
 ```bash
-npm run make:rpm
-sudo dnf install -y out/make/rpm/x64/mdv-*.x86_64.rpm
+npm run dist:rpm
+sudo dnf install -y out/mdv-*.x86_64.rpm
 ```
 
 ## Usage
@@ -69,7 +69,7 @@ Settings are persisted across sessions.
 ## Tech stack
 
 - **Runtime**: [Electron](https://www.electronjs.org/) (main + sandboxed preload + renderer)
-- **Packaging**: [Electron Forge](https://www.electronforge.io/) with `maker-deb`, `maker-rpm`, and [`@reforged/maker-appimage`](https://github.com/SpacingBat3/ReForged)
+- **Packaging**: [electron-builder](https://www.electron.build/) (deb, rpm, AppImage, NSIS, mac zip)
 - **Frontend**: Vanilla JS (ES6 modules), HTML5, CSS3
 - **Markdown**: [marked](https://github.com/markedjs/marked) + [marked-highlight](https://github.com/markedjs/marked-highlight) + [highlight.js](https://highlightjs.org/)
 - **Sanitization**: [DOMPurify](https://github.com/cure53/DOMPurify)
@@ -87,6 +87,5 @@ licenses:
 | [@highlightjs/cdn-assets](https://github.com/highlightjs/highlight.js) | BSD-3-Clause |
 | [@vscode/codicons](https://github.com/microsoft/vscode-codicons) | CC-BY-4.0 |
 | [dompurify](https://github.com/cure53/DOMPurify) | (MPL-2.0 OR Apache-2.0) |
-| [electron-squirrel-startup](https://github.com/mongodb-js/electron-squirrel-startup) | Apache-2.0 |
 | [marked](https://github.com/markedjs/marked) | MIT |
 | [marked-highlight](https://github.com/markedjs/marked-highlight) | MIT |

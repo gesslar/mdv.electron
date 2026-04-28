@@ -7,6 +7,7 @@ npm install       # once
 npm start         # dev run via electron .
 npm run lint      # eslint over src/
 npm run lint:fix  # autofix
+npm run clean     # wipe out/ and other build leftovers
 ```
 
 ## Building distributables
@@ -28,9 +29,12 @@ Artifacts land in `out/`.
 
 | Target    | Output                                  |
 |-----------|------------------------------------------|
-| `.deb`    | `out/MDV_*_amd64.deb`                    |
-| `.rpm`    | `out/MDV-*.x86_64.rpm`                   |
-| AppImage  | `out/MDV-*.AppImage`                     |
+| `.deb`    | `out/mdv_*_amd64.deb`                    |
+| `.deb`    | `out/mdv_*_arm64.deb`                    |
+| `.rpm`    | `out/mdv-*.aarch64.rpm`                   |
+| `.rpm`    | `out/mdv-*.x86_64.rpm`                   |
+| `.AppImage` | `out/mdv-*-arm64.AppImage`               |
+| `.AppImage` | `out/mdv-*.AppImage`                     |
 
 AppImage builds with just Node.js. The `.deb` and `.rpm` targets go through
 `fpm`, which electron-builder downloads on first use; `fpm` is bundled Ruby
@@ -45,23 +49,16 @@ Debian/Ubuntu hosts already provide `libcrypt.so.1` and need nothing extra.
 
 ### Windows target from Linux
 
-Building the Squirrel `.exe` installer cross-platform from Linux needs Mono
-and Wine — Squirrel.Windows is .NET and runs the installer generator under
-Wine.
-
 ```bash
-# Fedora
-sudo dnf install mono-devel wine
-
-# Debian/Ubuntu
-sudo apt install mono-devel wine
-
 npm run dist:win
 ```
 
-Output: `out/MDV Setup *.exe`
+Output: `out/mdv Setup *.exe` (NSIS installer, x64 + arm64).
 
-Building on Windows itself needs none of this — just Node.js + npm + `npm run dist:win`.
+NSIS via electron-builder is pure-native — `makensis` ships as a Linux ELF
+binary, so no Mono and no Wine are required. The installer registers the
+`.md` / `.markdown` / `.mkd` file associations from the `fileAssociations`
+block in `electron-builder.cjs`; uninstalling cleans them up.
 
 ### macOS target
 

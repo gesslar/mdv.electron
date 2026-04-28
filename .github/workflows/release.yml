@@ -45,11 +45,30 @@ jobs:
             echo "should-release=true" >> "$GITHUB_OUTPUT"
           fi
 
-  build-linux:
-    name: Build linux-x64
+  build:
+    name: Build ${{ matrix.target }}
     needs: gate
     if: needs.gate.outputs.should-release == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: deb
+            artifact-path: out/*.deb
+            needs-rpmbuild: false
+          - target: rpm
+            artifact-path: out/*.rpm
+            needs-rpmbuild: true
+          - target: appimage
+            artifact-path: out/*.AppImage
+            needs-rpmbuild: false
+          - target: win
+            artifact-path: |
+              out/*.exe
+              out/*.exe.blockmap
+              out/latest.yml
+            needs-rpmbuild: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -58,53 +77,26 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Install system packages
-        # rpm provides rpmbuild, which fpm shells out to when producing .rpm.
-        # libcrypt.so.1 (used by fpm's bundled ruby) is already on stock
-        # ubuntu-latest via libcrypt1; on Fedora hosts you'd need
-        # libxcrypt-compat — see DEVELOPMENT.md.
+      - name: Install rpmbuild
+        # fpm shells out to rpmbuild when producing .rpm. libcrypt.so.1 (used
+        # by fpm's bundled ruby) is already on stock ubuntu-latest via
+        # libcrypt1; on Fedora hosts you'd need libxcrypt-compat — see
+        # DEVELOPMENT.md.
+        if: matrix.needs-rpmbuild
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm
       - run: npm ci
-      - run: npm run dist:linux
+      - run: npm run dist:${{ matrix.target }}
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-x64
-          path: |
-            out/*.AppImage
-            out/*.deb
-            out/*.rpm
-          if-no-files-found: error
-
-  build-windows:
-    name: Build win32-x64
-    needs: gate
-    if: needs.gate.outputs.should-release == 'true'
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: npm
-      - run: npm ci
-      - run: npm run dist:win
-      - uses: actions/upload-artifact@v4
-        with:
-          name: win32-x64
-          path: |
-            out/squirrel-windows/**
-            out/*.exe
-            out/*.nupkg
-            out/RELEASES
+          name: ${{ matrix.target }}
+          path: ${{ matrix.artifact-path }}
           if-no-files-found: error
 
   publish:
     name: Publish draft release
-    needs: [gate, build-linux, build-windows]
+    needs: [gate, build]
     if: needs.gate.outputs.should-release == 'true'
     runs-on: ubuntu-latest
     steps:
