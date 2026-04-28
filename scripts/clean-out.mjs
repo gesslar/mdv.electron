@@ -9,29 +9,45 @@
  *   node scripts/clean-out.mjs
  */
 
-import { DirectoryObject } from "@gesslar/toolkit"
+import {readdir, rm, mkdir} from "node:fs/promises"
+import {join, resolve} from "node:path"
 
 const dirName = "out"
-const target = new DirectoryObject(dirName)
+const target = resolve(dirName)
 
-try {
-  if(await target.exists) {
-    const rmdir = async d => {
-      const {files, directories} = await d.read()
+const exists = async path => {
+  try {
+    await readdir(path)
+    return true
+  } catch(e) {
+    if(e.code === "ENOENT")
+      return false
+    throw e
+  }
+}
 
-      for(const file of files)
-        await file.delete()
+const rmdir = async(dir, depth=0) => {
+  const indent = "  ".repeat(depth)
+  const entries = await readdir(dir, {withFileTypes: true})
 
-      for(const directory of directories)
-        await rmdir(directory)
+  for(const entry of entries) {
+    const entryPath = join(dir, entry.name)
 
-      await d.delete()
+    if(entry.isDirectory()) {
+      await rmdir(entryPath, depth + 1)
+    } else {
+      await rm(entryPath)
     }
-
-    await rmdir(target)
   }
 
-  await target.assureExists()
+  await rm(dir, {recursive: true, force: true})
+}
+
+try {
+  if(await exists(target))
+    await rmdir(target)
+
+  await mkdir(target, {recursive: true})
 } catch(e) {
   console.error(e.message)
   process.exit(1)

@@ -1,8 +1,39 @@
+const {mkdir, copyFile} = require('node:fs/promises')
+const {join} = require('node:path')
+
 const description = 'A fast, minimal desktop markdown viewer'
 const productDescription = 'A fast, minimal desktop markdown viewer with hot reload, syntax highlighting, drag-and-drop, and file association for .md / .markdown / .mkd.'
 
 module.exports = {
   appId: 'dev.gesslar.mdv',
+  // Drops AppStream metadata into the unpacked AppDir so AppImage
+  // (and the flatpak wrapper, which copies the same tree) ship metadata
+  // that appstream-compose / appdir-lint can find at the standard XDG
+  // paths. The AppDir-root mdv.desktop electron-builder generates is
+  // kept as the AppImage launcher; the <appid>.desktop here exists so
+  // the metainfo's <launchable> resolves.
+  afterPack: async context => {
+    if(context.electronPlatformName !== 'linux')
+      return
+
+    const drops = [
+      {
+        src: 'build/flatpak/dev.gesslar.mdv.metainfo.xml',
+        dest: 'usr/share/metainfo/dev.gesslar.mdv.metainfo.xml',
+      },
+      {
+        src: 'build/flatpak/dev.gesslar.mdv.desktop',
+        dest: 'usr/share/applications/dev.gesslar.mdv.desktop',
+      },
+    ]
+
+    for(const {src, dest} of drops) {
+      const target = join(context.appOutDir, dest)
+
+      await mkdir(join(target, '..'), {recursive: true})
+      await copyFile(src, target)
+    }
+  },
   productName: 'mdv',
   copyright: 'Copyright © gesslar',
   directories: {
