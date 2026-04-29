@@ -18,8 +18,10 @@ electron.commandLine.appendSwitch("class", "mdv")
 
 // One process owns the userData dir to avoid Chromium SQLite contention
 // (localStorage/cookies/IndexedDB locks); subsequent launches forward
-// their argv via the second-instance event below.
-if(!electron.requestSingleInstanceLock()) {
+// their argv via the second-instance event below. Skipped in dev so the
+// debugger can attach to its own child without losing the lock race to
+// another running mdv.
+if(electron.isPackaged && !electron.requestSingleInstanceLock()) {
   electron.quit()
   process.exit(0)
 }
