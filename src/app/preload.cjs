@@ -9,11 +9,25 @@ contextBridge.exposeInMainWorld("mdv", {
   },
 
   window: {
-    setCurrentFile: path => ipcRenderer.invoke("window:set-current-file", path)
+    setCurrentFile: path => ipcRenderer.invoke("window:set-current-file", path),
+    minimize: () => ipcRenderer.invoke("window:minimize"),
+    toggleMaximize: () => ipcRenderer.invoke("window:toggle-maximize"),
+    close: () => ipcRenderer.invoke("window:close"),
+    isMaximized: () => ipcRenderer.invoke("window:is-maximized"),
+    onMaximizedChanged: callback => {
+      const listener = (_event, isMaximized) => callback(isMaximized)
+      ipcRenderer.on("window:maximized-changed", listener)
+
+      return () => ipcRenderer.removeListener("window:maximized-changed", listener)
+    }
   },
 
   dialog: {
     openFile: options => ipcRenderer.invoke("dialog:open-file", options)
+  },
+
+  contextMenu: {
+    stage: payload => ipcRenderer.invoke("context-menu:stage", payload)
   },
 
   fs: {
@@ -30,10 +44,6 @@ contextBridge.exposeInMainWorld("mdv", {
 
       return () => ipcRenderer.removeListener("watcher:changed", listener)
     }
-  },
-
-  titlebar: {
-    setOverlay: options => ipcRenderer.invoke("titlebar:set-overlay", options)
   },
 
   log: {

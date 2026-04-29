@@ -71,6 +71,9 @@ html.dark {
   --surface-button-neutral: var(--color-zinc-800);
   --surface-button-neutral-hover: var(--color-zinc-600);
   --surface-overlay: color-mix(in oklab, var(--color-zinc-800) 80%, transparent);
+  --toolbutton-hover: color-mix(in oklab, var(--color-pink-100) 10%, transparent);
+  --toolbutton-hover-close: color-mix(in oklab, oklch(0.4409 0.1606 26.45) 80%, transparent);
+  --toolbutton-hover-close-text: var(--color-white);
   --text-primary: var(--color-zinc-100);
   --text-muted: var(--color-pink-400);
   --text-on-panel: var(--color-zinc-200);
@@ -97,6 +100,9 @@ html.light {
   --surface-button-neutral: var(--color-zinc-200);
   --surface-button-neutral-hover: var(--color-zinc-400);
   --surface-overlay: color-mix(in oklab, var(--color-white) 85%, transparent);
+  --toolbutton-hover: color-mix(in oklab, var(--color-pink-900) 20%, transparent);
+  --toolbutton-hover-close: color-mix(in oklab, oklch(0.4409 0.1606 26.45) 80%, transparent);
+  --toolbutton-hover-close-text: var(--color-white);
   --text-primary: var(--color-zinc-900);
   --text-muted: var(--color-pink-800);
   --text-on-panel: var(--color-pink-800);
@@ -171,17 +177,41 @@ html {
 }
 
 body {
-
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
-
   margin: 0;
   padding: 0;
   line-height: 1.75em;
   transition: background-color 100ms ease-out,
-  color 100ms ease-out;
+    color 100ms ease-out;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
+    border-radius: var(--radius-xs);
+    padding-inline: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 2);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    cursor: pointer;
+    outline: none;
+    border: none;
+  }
+
+  button:not(:disabled):not(.btn-window),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+  }
 
   header#app-header {
     flex: 0 0 auto;
@@ -217,6 +247,11 @@ body {
         margin-left: auto;
       }
 
+      .toolsep {
+        padding: .5em 0;
+        margin: 0 .5em;
+      }
+
       .toolbutton {
         background-color: var(--surface-chrome);
         color: var(--text-muted);
@@ -242,8 +277,19 @@ body {
         -webkit-app-region: no-drag;
         height: calc(env(titlebar-area-height, 36px) - 6px);
         min-height: 0;
-        background: var(--btn-action-bg);
-        color: var(--btn-action-color);
+
+        &:hover {
+          background-color: var(--toolbutton-hover);
+        }
+
+        &.btn-window {
+          &.close {
+            &:hover {
+              color: var(--toolbutton-hover-close-text);
+              background-color: var(--toolbutton-hover-close);
+            }
+          }
+        }
       }
     }
   }
@@ -542,10 +588,6 @@ body {
         padding: .5ch 1ch;
       }
 
-      tr:nth-child(even) {
-        /* background-color: color-mix(in oklab, var(--color-pink-500) 5%, transparent); */
-      }
-
       h1 {
         padding-bottom: 0.3em;
         border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 40%, transparent);
@@ -605,4 +647,11 @@ body {
       }
     }
   }
+}
+
+/* Drag regions paint above <dialog>::backdrop in Window-Controls-Overlay
+   windows, so suppress dragging while a modal is open — otherwise the
+   backdrop misses the titlebar strip. */
+body.modal-open #titlebar {
+  -webkit-app-region: no-drag;
 }
