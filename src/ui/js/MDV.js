@@ -40,9 +40,12 @@ async function main() {
     Notify.on("hot-reload-changed", async evt => await handleHotReloadChange(evt))
     Notify.on("title-change", evt => updateTitle(evt))
 
+    console.log("before new UI")
     const ui = new UI()
+    console.log("before before initializeUI")
     await ui.initializeUI()
 
+    console.log("before before initializeFileDrag")
     await FileDrag.initializeFileDrag()
 
     // Initialize file watcher
@@ -143,6 +146,8 @@ function handleFileDropped({detail: dragEvent}) {
 }
 
 async function handleFileLoaded({detail: filePath}) {
+  await window.mdv.window.setCurrentFile(filePath)
+
   const fileWatcher = app[FileWatcher.name]
   if(fileWatcher)
     await fileWatcher.watchFile(filePath)

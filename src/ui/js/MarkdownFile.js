@@ -1,6 +1,5 @@
 import Base from "./Base.js"
 import {error, warn} from "./Logging.js"
-import MD from "./MD.js"
 import {Notify} from "./vendor/toolkit.esm.js"
 
 /**
@@ -9,32 +8,13 @@ import {Notify} from "./vendor/toolkit.esm.js"
  */
 export default class MarkdownFile extends Base {
   /**
-   * Attempts to resolve a CLI-provided markdown file path at launch.
+   * Returns the file path this window was launched with, if any.
+   * Argv parsing lives in main; this is just a per-window lookup.
    *
-   * @returns {Promise<string|null>} File path when detected; null otherwise.
+   * @returns {Promise<string|null>} File path when assigned; null otherwise.
    */
   async identifyCliFilename() {
-    const [arg] = await window.mdv.cli.getArgs()
-
-    return this.#isLikelyMarkdownFile(arg)
-      ? arg
-      : null
-  }
-
-  /**
-   * Simple extension check to decide if a token likely refers to a markdown
-   * file.
-   *
-   * @param {string} filename - Candidate CLI token.
-   * @returns {boolean} True when the token ends with a known extension.
-   */
-  #isLikelyMarkdownFile(filename) {
-    if(!filename)
-      return false
-
-    const {ext} = /.*\.(?<ext>.*)$/.exec(filename)?.groups ?? {}
-
-    return ext && ext.toLocaleLowerCase() in MD.EXT
+    return await window.mdv.cli.getFile()
   }
 
   #validMimeTypes = Object.freeze(["text/markdown"])
@@ -81,10 +61,27 @@ export default class MarkdownFile extends Base {
     try {
       const selection = await this.#promptForFileSelection()
 
-      if(!selection)
+      if(!selection) {
         Notify.emit("file-not-selected")
-      else
-        Notify.emit("file-selected", selection)
+
+        return
+      }
+
+      // TODO: dedupe — if `selection` is already open in another window,
+      // raise that window and skip loading here. Needs a toast to surface
+      // the redirect; until then, falling through silently would just look
+      // like the dialog did nothing. Revive once toasts land:
+      //
+      //   const focused = await window.mdv.window.focusIfOpen(selection)
+      //   if(focused) {
+      //     // Notify.emit("toast", {message: `Already open: ${selection}`})
+      //     return
+      //   }
+      //
+      // Requires preload: window.focusIfOpen → ipcRenderer.invoke("window:focus-if-open", path)
+      // Requires main:    ipcMain.handle("window:focus-if-open", ...) returning bool
+
+      Notify.emit("file-selected", selection)
     } catch(e) {
       throw new Error(`Could not read selected file: ${e}`)
     }
