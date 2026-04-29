@@ -277,6 +277,8 @@ body {
         -webkit-app-region: no-drag;
         height: calc(env(titlebar-area-height, 36px) - 6px);
         min-height: 0;
+        background: inherit;
+        color: inherit;
 
         &:hover {
           background-color: var(--toolbutton-hover);
