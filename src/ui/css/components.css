@@ -32,37 +32,3 @@
 }
 
 /* Button Components */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--spacing) * 1);
-  border-radius: var(--radius-xs);
-  /* background-color: var(--color-pink-500); */
-  padding-inline: calc(var(--spacing) * 2);
-  padding-block: calc(var(--spacing) * 2);
-  font-weight: var(--font-weight-medium);
-  line-height: 1;
-  /* color: var(--color-white); */
-  cursor: pointer;
-  outline: none;
-  border: none;
-
-  &:hover {
-    @media (hover: hover) {
-      outline: 1px solid var(--color-zinc-400);
-    }
-  }
-
-  &:active {}
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.btn-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
-}

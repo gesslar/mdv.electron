@@ -81,11 +81,6 @@ const createWindow = (filePath = null) => {
     fullscreenable: true,
     icon: appIcon,
     titleBarStyle: "hidden",
-    ...(process.platform !== "darwin" ? {titleBarOverlay: true} : {}),
-    titleBarOverlay: {
-      color: "#abcdef00"
-    },
-    // frame: false,
     type: "desktop",
     webPreferences: {
       preload: preloadPath,
@@ -128,12 +123,19 @@ const createWindow = (filePath = null) => {
   win.webContents.on("before-input-event", (event, input) => {
     const key = input.key.toLowerCase()
 
-    if(input.control && input.shift && key === "i")
-      BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools()
-
-    else if(input.control && key === "w")
-      BrowserWindow.getFocusedWindow()?.close()
+    if(input.control && input.shift && key === "i") {
+      win.webContents.toggleDevTools()
+      event.preventDefault()
+    }
   })
+
+  const sendMaximized = () => {
+    if(!win.webContents.isDestroyed())
+      win.webContents.send("window:maximized-changed", win.isMaximized())
+  }
+
+  win.on("maximize", sendMaximized)
+  win.on("unmaximize", sendMaximized)
 
   return win
 }
@@ -185,6 +187,49 @@ ipcMain.handle("window:set-current-file", (event, filePath) => {
     windowFiles.set(win, filePath ?? null)
 })
 
+ipcMain.handle("window:minimize", event =>
+  BrowserWindow.fromWebContents(event.sender)?.minimize())
+
+ipcMain.handle("window:toggle-maximize", event => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if(!win)
+    return
+
+  if(win.isMaximized())
+    win.unmaximize()
+  else
+    win.maximize()
+})
+
+ipcMain.handle("window:close", event =>
+  BrowserWindow.fromWebContents(event.sender)?.close())
+
+ipcMain.handle("window:is-maximized", event =>
+  BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false)
+
+// Builds and pops a stage context menu, returning the chosen action id (or
+// null if dismissed). Items are disabled when there's no selection — we
+// still show the menu so the user gets feedback that the menu exists.
+ipcMain.handle("context-menu:stage", (event, {hasSelection}) =>
+  new Promise(resolve => {
+    let chosen = null
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const menu = Menu.buildFromTemplate([
+      {
+        label: "Copy",
+        enabled: hasSelection,
+        click: () => {
+          chosen = "copy"
+        },
+      },
+    ])
+
+    menu.popup({
+      window: win,
+      callback: () => resolve(chosen),
+    })
+  }))
+
 ipcMain.handle("dialog:open-file", async(event, options = {}) => {
   const win = BrowserWindow.fromWebContents(event.sender)
   const result = await dialog.showOpenDialog(win, {
@@ -219,14 +264,6 @@ ipcMain.handle("watcher:watch", (event, path) => {
 })
 
 ipcMain.handle("watcher:unwatch", event => stopWatcher(event.sender.id))
-
-ipcMain.handle("titlebar:set-overlay", (event, options) => {
-  if(process.platform === "darwin")
-    return
-
-  const win = BrowserWindow.fromWebContents(event.sender)
-  win?.setTitleBarOverlay(options)
-})
 
 ipcMain.on("log", (_event, level, message) => {
   const method = console[level] ?? console.log

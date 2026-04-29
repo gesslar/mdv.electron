@@ -23,13 +23,25 @@ import TOC from "./TOC.js"
 export default class UI extends Base {
   #regionIds = Object.freeze(["#stage", "#watermark"])
   #dragTargetIds = Object.freeze(["#mainView", "#plusIcon"])
-  #actionButtonIds = Object.freeze(["#action-config-button", "#action-open-button"])
+  #actionButtonIds = Object.freeze([
+    "#action-config-button",
+    "#action-open-button",
+    "#action-minimize",
+    "#action-maximize",
+    "#action-restore",
+    "#action-close",
+  ])
   #actions = Object.freeze(new Map([
     ["#action-config-button", () => Notify.request("config-dialog-requested")],
     ["#action-open-button", () => Notify.emit("file-dialog-requested")],
+    ["#action-minimize", () => window.mdv.window.minimize()],
+    ["#action-maximize", () => window.mdv.window.toggleMaximize()],
+    ["#action-restore", () => window.mdv.window.toggleMaximize()],
+    ["#action-close", () => window.mdv.window.close()],
   ]))
   #shortcuts = Object.freeze(new Map([
     ["ctrl+o", "#action-open-button"],
+    ["ctrl+w", "#action-close"],
   ]))
   #observer
   #markdown
@@ -55,6 +67,12 @@ export default class UI extends Base {
     })
 
     this.registerOn("keydown", evt => this.#handleShortcut(evt), document)
+    this.registerOn("copy", evt => this.#handleCopy(evt), document)
+    this.registerOn(
+      "contextmenu",
+      evt => this.#handleStageContextMenu(evt),
+      document.querySelector("#stage")
+    )
 
     this.registerOn("drag-in", evt => this.#dragIn(evt))
     this.registerOn("drag-out", evt => this.#dragOut(evt))
@@ -65,6 +83,41 @@ export default class UI extends Base {
 
     this.#setupObserver()
     this.initializeTheme()
+    await this.#initializeWindowControls()
+  }
+
+  /**
+   * Reflects the current maximized state on the titlebar buttons and keeps
+   * them in sync with future window state changes.
+   *
+   * @private
+   */
+  async #initializeWindowControls() {
+    this.#applyMaximizedState(await window.mdv.window.isMaximized())
+
+    this.register(
+      window.mdv.window.onMaximizedChanged(
+        isMax => this.#applyMaximizedState(isMax)
+      )
+    )
+  }
+
+  /**
+   * Shows the restore button when the window is maximized, otherwise the
+   * maximize button. Other titlebar buttons are unaffected.
+   *
+   * @param {boolean} isMaximized - Whether the window is currently maximized.
+   * @private
+   */
+  #applyMaximizedState(isMaximized) {
+    const maximize = document.querySelector("#action-maximize")
+    const restore = document.querySelector("#action-restore")
+
+    if(maximize)
+      maximize.style.display = isMaximized ? "none" : ""
+
+    if(restore)
+      restore.style.display = isMaximized ? "" : "none"
   }
 
   /**
@@ -114,48 +167,6 @@ export default class UI extends Base {
     hljsTheme.href = `css/github${resolvedTheme === "dark" ? "-dark" : ""}.css`
 
     this.#currentTheme = resolvedTheme
-    this.#syncTitleBarOverlay()
-  }
-
-  /**
-   * Resolves a CSS custom property to a `#rrggbb` string by routing it
-   * through a 1×1 canvas, which flattens any color space (oklch, etc.)
-   * to sRGB bytes that Electron's titleBarOverlay can consume.
-   *
-   * @param {string} varName - CSS custom property name, including leading `--`.
-   * @returns {string|null} Hex color, or null if the property is unset.
-   * @private
-   */
-  #resolveCssColor(varName) {
-    const value = getComputedStyle(document.documentElement)
-      .getPropertyValue(varName)
-      .trim()
-
-    if(!value)
-      return null
-
-    const ctx = document.createElement("canvas").getContext("2d")
-    ctx.fillStyle = value
-    ctx.fillRect(0, 0, 1, 1)
-    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
-
-    return `#${[r, g, b].map(n => n.toString(16).padStart(2, "0")).join("")}`
-  }
-
-  /**
-   * Pushes the current theme's chrome + symbol colors to the system
-   * titlebar overlay. No-op on macOS (handled in main).
-   *
-   * @private
-   */
-  #syncTitleBarOverlay() {
-    const color = this.#resolveCssColor("--surface-chrome")
-    const symbolColor = this.#resolveCssColor("--text-muted")
-
-    if(!color || !symbolColor)
-      return
-
-    window.mdv?.titlebar?.setOverlay({color, symbolColor})
   }
 
   /**
@@ -184,6 +195,88 @@ export default class UI extends Base {
 
       return false
     }
+  }
+
+  /**
+   * Returns the active document selection iff it carries copyable content,
+   * otherwise null. Used by both Ctrl+C and the context menu copy path.
+   *
+   * @returns {Selection|null} Selection with non-empty content, or null.
+   * @private
+   */
+  #copyableSelection() {
+    const selection = window.getSelection()
+
+    if(!selection || selection.isCollapsed || selection.toString().length === 0)
+      return null
+
+    return selection
+  }
+
+  /**
+   * Serializes the given selection's first range into HTML.
+   *
+   * @param {Selection} selection - Source selection.
+   * @returns {string} HTML markup of the selected range.
+   * @private
+   */
+  #selectionAsHtml(selection) {
+    const container = document.createElement("div")
+    container.appendChild(selection.getRangeAt(0).cloneContents())
+
+    return container.innerHTML
+  }
+
+  /**
+   * Hijacks Ctrl+C so the default copy carries both rich (HTML) and plain
+   * payloads. Falls through (lets the browser handle it) when there's no
+   * document selection — that path covers `<input>`/`<textarea>` copies,
+   * which use their own selection model.
+   *
+   * @param {ClipboardEvent} evt - The copy event.
+   * @private
+   */
+  #handleCopy(evt) {
+    const selection = this.#copyableSelection()
+
+    if(!selection)
+      return
+
+    evt.clipboardData.setData("text/html", this.#selectionAsHtml(selection))
+    evt.clipboardData.setData("text/plain", selection.toString())
+    evt.preventDefault()
+  }
+
+  /**
+   * Pops a context menu over the stage. The Copy action writes the same
+   * rich (HTML + plain) payload as Ctrl+C.
+   *
+   * @param {MouseEvent} evt - The contextmenu event.
+   * @private
+   */
+  async #handleStageContextMenu(evt) {
+    this.preventDefaults(evt)
+
+    const selection = this.#copyableSelection()
+    const action = await window.mdv.contextMenu.stage({
+      hasSelection: !!selection
+    })
+
+    if(action !== "copy" || !selection)
+      return
+
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "text/html": new Blob(
+          [this.#selectionAsHtml(selection)],
+          {type: "text/html"}
+        ),
+        "text/plain": new Blob(
+          [selection.toString()],
+          {type: "text/plain"}
+        ),
+      })
+    ])
   }
 
   /**
