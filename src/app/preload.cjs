@@ -5,7 +5,11 @@ const {contextBridge, ipcRenderer, webUtils} = require("electron")
 contextBridge.exposeInMainWorld("mdv", {
   cli: {
     getRuntimePath: () => ipcRenderer.invoke("cli:get-runtime-path"),
-    getArgs: () => ipcRenderer.invoke("cli:get-args")
+    getFile: () => ipcRenderer.invoke("cli:get-file")
+  },
+
+  window: {
+    setCurrentFile: path => ipcRenderer.invoke("window:set-current-file", path)
   },
 
   dialog: {
