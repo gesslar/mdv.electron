@@ -162,7 +162,7 @@ export default class MarkdownFile extends Base {
       if(!content)
         throw new Error("Could not read selected file.")
 
-      Notify.emit("content-loaded", content)
+      Notify.emit("content-loaded", {content, filePath})
       Notify.emit("file-loaded", filePath)
     } catch(err) {
       throw new Error(`Could not read selected file: ${err}`)

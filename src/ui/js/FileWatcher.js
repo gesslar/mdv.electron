@@ -52,7 +52,7 @@ export default class FileWatcher extends Base {
 
               const content =
                 await window.mdv.fs.readTextFile(this.#currentFilePath)
-              Notify.emit("content-loaded", {content, hotReload: true})
+              Notify.emit("content-loaded", {content, filePath: this.#currentFilePath, hotReload: true})
             } catch(err) {
               error(`Failed to reload file: ${err.message}`)
             }

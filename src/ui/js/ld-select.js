@@ -11,6 +11,8 @@
 //   .selectedIndex (get/set)
 //   "change" event on user-driven selection
 
+import {escapeAttr, escapeHtml} from "./HtmlEscape.js"
+
 let instanceCounter = 0
 
 export default class LDSelect extends HTMLElement {
@@ -234,6 +236,7 @@ export default class LDSelect extends HTMLElement {
 
       if(!this.#options[i].disabled) {
         this.#setActive(i)
+
         return
       }
     }
@@ -352,26 +355,6 @@ export default class LDSelect extends HTMLElement {
     if(name === "value" && this.#button && val !== this.#value)
       this.#selectValue(val, false)
   }
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "\"": "&quot;",
-    "'": "&#39;",
-  }[c]))
-}
-
-function escapeAttr(s) {
-  return String(s).replace(/["'&<>]/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "\"": "&quot;",
-    "'": "&#39;",
-  }[c]))
 }
 
 customElements.define("ld-select", LDSelect)

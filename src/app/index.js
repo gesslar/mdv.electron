@@ -1,9 +1,9 @@
 import * as TK from "@gesslar/toolkit"
 import {app as electron, BrowserWindow, dialog, ipcMain, nativeImage, Menu, shell} from "electron"
 import {readFile} from "node:fs/promises"
-import {watch} from "node:fs"
+import {existsSync, watch} from "node:fs"
 
-const {Notify, Disposer, FileObject} = TK
+const {Notify, Disposer, FileObject, FileSystem} = TK
 const appDir = FileObject.fromCwf().parent
 const srcDir = appDir.parent
 const preloadPath = appDir.getFile("preload.cjs").path
@@ -248,6 +248,46 @@ ipcMain.handle("dialog:open-file", async(event, options = {}) => {
 })
 
 ipcMain.handle("fs:read-text-file", (_event, path) => readFile(path, "utf8"))
+
+// Resolves a link href clicked in a rendered document. Markdown targets
+// open in an mdv window (deduped via openFile); anything else is handed
+// to the OS so plain `<a href="image.png">` links don't dead-end.
+ipcMain.handle("link:open", (_event, {href, baseFilePath} = {}) => {
+  if(typeof href !== "string" || href === "")
+    return
+
+  let target = /^file:/i.test(href) ? FileSystem.urlToPath(href) : href
+
+  const hashIdx = target.indexOf("#")
+  if(hashIdx >= 0)
+    target = target.slice(0, hashIdx)
+
+  if(!target)
+    return
+
+  let resolved
+  try {
+    resolved = baseFilePath
+      ? new FileObject(target, new FileObject(baseFilePath).parent).path
+      : new FileObject(target).path
+  } catch(err) {
+    console.error("[mdv] failed to resolve link target:", err.message)
+
+    return
+  }
+
+  // TODO: when toast tech lands, surface a "file not found" message
+  // (probably in the new instance) instead of swallowing silently.
+  if(!existsSync(resolved))
+    return
+
+  const ext = /\.([^.]+)$/.exec(resolved)?.[1]?.toLowerCase()
+
+  if(ext && MD_EXTENSIONS.has(ext))
+    openFile(resolved)
+  else
+    shell.openPath(resolved)
+})
 
 ipcMain.handle("watcher:watch", (event, path) => {
   const sender = event.sender

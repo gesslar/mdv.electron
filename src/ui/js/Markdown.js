@@ -2,6 +2,7 @@ import hljs from "./vendor/highlight.esm.js"
 import {markedHighlight} from "./vendor/marked-highlight.esm.js"
 import {HTML, Notify} from "./vendor/toolkit.esm.js"
 import Base from "./Base.js"
+import {escapeAttr} from "./HtmlEscape.js"
 import TOC from "./TOC.js"
 
 /**
@@ -13,6 +14,7 @@ export class Markdown extends Base {
   #raw
   #parsed
   #marked
+  #currentFilePath = null
 
   /** @type {TOC} */
   #toc
@@ -36,8 +38,9 @@ export class Markdown extends Base {
    * @param {boolean} [hotReload=false] - Whether this is a hot reload.
    * @returns {Promise<void>} Resolves when rendering completes.
    */
-  async render(content, hotReload = false) {
+  async render(content, filePath, hotReload = false) {
     this.#headings = []
+    this.#currentFilePath = filePath ?? null
 
     const marked = await this.#initializeMarked()
     const parsed = await marked.parse(content)
@@ -49,6 +52,11 @@ export class Markdown extends Base {
 
     // Inject copy buttons into code blocks
     this.#injectCopyButtons(element)
+
+    // Route local file link clicks through main so they open in a new
+    // mdv window (or the system default app) rather than letting the
+    // browser try a forbidden file:// navigation.
+    this.#wireLocalFileLinks(element)
 
     if(this.headings.length > 0)
       this.#toc = new TOC(element, this.headings)
@@ -241,29 +249,73 @@ export class Markdown extends Base {
    */
   #renderLink(data) {
     const {text,href,title} = data
-    const isInternal = href.startsWith("#")
+    const titleAttr = escapeAttr(title ?? "")
 
-    if(isInternal) {
+    if(href.startsWith("#")) {
       // Normalize the anchor href to match generated heading IDs
       // If the ID starts with a digit or dash, it gets prefixed with '_'
-      const anchorId = href.slice(1) // Remove the '#'
+      const anchorId = href.slice(1)
       const normalizedId = this.#generateAnchorId(anchorId)
-      const normalizedHref = `#${normalizedId}`
 
-      return `<a href="${normalizedHref}" title="${title ?? ""}">${text}</a>`
+      return `<a href="#${normalizedId}" title="${titleAttr}">${text}</a>`
     }
 
+    const hrefAttr = escapeAttr(href)
+
+    // Treat anything with a non-file scheme as external. file:// URLs and
+    // relative/absolute paths fall through to the local-file branch so the
+    // click handler can resolve them against the source document's dir.
+    if(/^(?!file:)[a-z][a-z0-9+.-]*:/i.test(href)) {
+      return `<span>`+
+          `<a `+
+            `href="${hrefAttr}" `+
+            `target="_blank" `+
+            `rel="noopener noreferrer" `+
+            `title="${titleAttr}"`+
+          `>`+
+            `${text}`+
+          `</a>` +
+          `<i class="external-link-icon" aria-hidden="true"></i>`+
+        `</span>`
+    }
+
+    // The href is also kept on the anchor so the browser applies its
+    // default link styling (cursor, underline). The click handler
+    // preventDefaults to stop the forbidden file:// navigation.
     return `<span>`+
         `<a `+
-          `href="${href}" `+
-          `target="_blank" `+
-          `rel="noopener noreferrer" `+
-          `title="${title ?? ""}"`+
+          `class="local-file-link" `+
+          `href="${hrefAttr}" `+
+          `data-href="${hrefAttr}" `+
+          `title="${titleAttr}"`+
         `>`+
           `${text}`+
         `</a>` +
         `<i class="external-link-icon" aria-hidden="true"></i>`+
       `</span>`
+  }
+
+  /**
+   * Intercepts clicks on local-file links and forwards the (href, baseFilePath)
+   * pair to main. Without this the browser would try to follow the link as a
+   * file:// navigation relative to index.html and Chromium blocks it.
+   *
+   * @param {Element} element - The rendered markdown element.
+   * @private
+   */
+  #wireLocalFileLinks(element) {
+    element.addEventListener("click", e => {
+      const link = e.target.closest("a.local-file-link")
+      if(!link)
+        return
+
+      e.preventDefault()
+      const href = link.dataset.href
+      if(!href)
+        return
+
+      window.mdv.link.open(href, this.#currentFilePath)
+    })
   }
 
   /**
