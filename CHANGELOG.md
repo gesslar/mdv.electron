@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.3.0
+
+### Added
+
+- Local-file link handling: clicking a relative or absolute path in a rendered document now opens the target in a new mdv window (or hands off to the OS via `shell.openPath` for non-markdown files), instead of failing with Chromium's "Not allowed to load local resource" error. Hrefs are resolved against the source document's directory using `@gesslar/toolkit`'s `FileObject`/`FileSystem`, so behavior is the same on Linux, macOS, and Windows.
+- Notification center: a bell button at the right edge of the status bar opens a slide-in panel listing all notifications with per-item dismiss and a clear-all action; new notifications also appear as bottom-right toasts. Info toasts auto-dismiss after 5s; warn/error toasts persist until dismissed. Opening the panel marks everything read and clears any visible toasts.
+- Toasts wired at previously silent failure points: file-load failure, file-dialog open failure, invalid drag-drop, dropped-file read failure, code-copy clipboard failure, and hot-reload set-up/reload failures.
+- "Already open" feedback when the open dialog selects a file that's already showing in another window — the existing window is focused (via a new `window:focus-if-open` IPC) and an info toast notes the redirect.
+- "File not found" and "Could not open" toasts surfaced from main when a clicked link target doesn't exist or the OS has no associated app for the file's extension.
+- `toast(severity, message)` helper in `Logging.js` and a `mdv.notify.onPush` preload bridge so any module — and main, over IPC — can raise a notification with one call.
+- Shared `HtmlEscape.js` module providing `escapeHtml` and `escapeAttr`; replaces duplicated copies that lived in `ld-select.js`.
+
+### Changed
+
+- Filename moved to the left of the status bar; the right edge now hosts a toolbutton group (currently the notification bell).
+- `.toolbutton` and `.btn-action` styles lifted out of the titlebar scope so the same chrome (no-drag, hover tint, height) applies in the status bar, notification panel, and toasts. Disabled buttons drop to 40% opacity with the hover tint suppressed.
+- Link-renderer output: `href` and `title` attributes are now HTML-attribute-encoded across all three render branches (anchor, external, local-file), so a literal `"` or `&` in markdown link metadata can no longer break out of the attribute.
+
 ## 1.2.0
 
 ### Added
