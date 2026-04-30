@@ -2,6 +2,7 @@ import hljs from "./vendor/highlight.esm.js"
 import {markedHighlight} from "./vendor/marked-highlight.esm.js"
 import {HTML, Notify} from "./vendor/toolkit.esm.js"
 import Base from "./Base.js"
+import {toast} from "./Logging.js"
 import {escapeAttr} from "./HtmlEscape.js"
 import TOC from "./TOC.js"
 
@@ -131,35 +132,6 @@ export class Markdown extends Base {
     })
 
     return marked
-
-    // if(typeof marked === "undefined") {
-    //   error("marked.js not loaded. Cannot render markdown.")
-
-    //   return false
-    // }
-
-    // // Configure marked to auto-highlight
-    // marked.setOptions({
-    //   highlight(code, language) {
-    //     if(language && hljs.getLanguage(language))
-    //       return hljs.highlight(code, {language}).value
-
-    //     return hljs.highlightAuto(code).value
-    //   },
-    // })
-
-    // // Custom link renderer with external link icons
-    // marked.use({
-    //   renderer: {
-    //     link: arg => this.#renderLink(arg),
-    //     heading: arg => this.#renderHeadingAnchor(arg)
-    //   },
-    // })
-    // marked.use({
-    //   walkTokens: arg => this.#processHeading(arg)
-    // })
-
-    // return true
   }
 
   /**
