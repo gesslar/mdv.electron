@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.2.0
+
+### Added
+
+- Floating TOC bar: the table of contents now lives as a top-right pill that collapses to a single FAB and expands to a row of [hide] [scroll-to-top] [heading select] [scroll-to-bottom]. Replaces the previous fixed-width sidebar list, freeing the stage to span full width.
+- `ld-select`: a light-DOM custom element replacement for `<select>`, used as the heading picker in the TOC bar. Sizes itself to the longest option label (native-style auto-sizing); fully theme-able through `--ld-select-*` custom properties so it can be reused outside this app.
+- TOC scrollspy: as the document scrolls, the heading select reflects the topmost heading whose top has crossed the stage edge. The select setter doesn't fire `change`, so there's no scroll-feedback loop.
+- `PRIVACY.md` describing the app's data handling.
+
+### Changed
+
+- The first H1 is no longer stripped from the rendered document — it stays as both the window-title source and the first TOC entry.
+- `--shadow-md` retuned to a tight palette-tinted inset+outset glow so dark-mode elevation reads as a soft pink halo instead of the previous white-on-dark drop shadow.
+- Heading anchors are no longer rendered as inline `<li><a>` markup; the document keeps the headings themselves and the TOC routes via the heading-select component.
+
+### Removed
+
+- The old TOC flat-list (`toc.html` template, `.toc-link`/`.toc-item` markup, and the IntersectionObserver that drove the `[visible]` highlight). Superseded by the FAB + select + scrollspy combo.
+
 ## 1.1.0
 
 ### Added
