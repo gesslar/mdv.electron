@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld("mdv", {
     toggleMaximize: () => ipcRenderer.invoke("window:toggle-maximize"),
     close: () => ipcRenderer.invoke("window:close"),
     isMaximized: () => ipcRenderer.invoke("window:is-maximized"),
+    focusIfOpen: path => ipcRenderer.invoke("window:focus-if-open", path),
     onMaximizedChanged: callback => {
       const listener = (_event, isMaximized) => callback(isMaximized)
       ipcRenderer.on("window:maximized-changed", listener)
@@ -37,6 +38,15 @@ contextBridge.exposeInMainWorld("mdv", {
 
   link: {
     open: (href, baseFilePath) => ipcRenderer.invoke("link:open", {href, baseFilePath})
+  },
+
+  notify: {
+    onPush: callback => {
+      const listener = (_event, payload) => callback(payload)
+      ipcRenderer.on("notify:push", listener)
+
+      return () => ipcRenderer.removeListener("notify:push", listener)
+    }
   },
 
   watcher: {

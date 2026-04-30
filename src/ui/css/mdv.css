@@ -237,6 +237,35 @@ body {
     color: var(--color-white);
   }
 
+  .toolbutton {
+    background-color: var(--surface-chrome);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-action {
+    -webkit-app-region: no-drag;
+    height: calc(env(titlebar-area-height, 36px) - 6px);
+    min-height: 0;
+    background: inherit;
+    color: inherit;
+
+    &:hover:not(:disabled) {
+      background-color: var(--toolbutton-hover);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &.btn-window.close:hover {
+      color: var(--toolbutton-hover-close-text);
+      background-color: var(--toolbutton-hover-close);
+    }
+  }
+
   header#app-header {
     flex: 0 0 auto;
     height: env(titlebar-area-height, 36px);
@@ -276,13 +305,6 @@ body {
         margin: 0 .5em;
       }
 
-      .toolbutton {
-        background-color: var(--surface-chrome);
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-      }
-
       #titlebar-title {
         flex: 1;
         margin: 0;
@@ -297,26 +319,6 @@ body {
         min-width: 0;
       }
 
-      .btn-action {
-        -webkit-app-region: no-drag;
-        height: calc(env(titlebar-area-height, 36px) - 6px);
-        min-height: 0;
-        background: inherit;
-        color: inherit;
-
-        &:hover {
-          background-color: var(--toolbutton-hover);
-        }
-
-        &.btn-window {
-          &.close {
-            &:hover {
-              color: var(--toolbutton-hover-close-text);
-              background-color: var(--toolbutton-hover-close);
-            }
-          }
-        }
-      }
     }
   }
 
@@ -652,6 +654,8 @@ body {
         font-size: var(--text-sm);
         line-height: calc(1.25 / 0.875);
         font-weight: var(--font-weight-medium);
+        min-width: 0;
+        flex: 1;
       }
 
       #statusbar-right {
@@ -666,8 +670,205 @@ body {
 
       #filename {
         color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-inline-start: 0.5em;
+      }
+
+      #action-notifications-button {
+        position: relative;
+
+        .notif-badge {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          min-width: 0.45rem;
+          height: 0.45rem;
+          border-radius: 999px;
+          background-color: var(--color-pink-500);
+          box-shadow: 0 0 4px color-mix(in oklab, var(--color-pink-500) 60%, transparent);
+        }
       }
     }
+  }
+}
+
+#notification-panel {
+  position: fixed;
+  right: 0.75rem;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 2.25rem);
+  width: min(35rem, calc(100vw - 1rem));
+  max-height: min(60vh, 32rem);
+  background-color: var(--surface-chrome);
+  color: var(--text-primary);
+  border: 1px solid color-mix(in oklab, var(--color-pink-500) 30%, transparent);
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 24px color-mix(in oklab, var(--color-pink-500) 18%, transparent);
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  overflow: hidden;
+  transform-origin: bottom right;
+  transition: opacity 140ms ease-out, transform 140ms ease-out;
+
+  &.hidden {
+    display: none;
+  }
+
+  &.entering {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  .notif-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 18%, transparent);
+
+    .notif-panel-title {
+      flex: 1;
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      letter-spacing: var(--tracking-wide);
+    }
+  }
+
+  .notif-panel-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+
+    &:empty + .notif-panel-empty {
+      display: block;
+    }
+  }
+
+  .notif-panel-empty {
+    display: none;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+}
+
+#toast-stack {
+  position: fixed;
+  right: 0.75rem;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 2.5rem);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  z-index: 70;
+  pointer-events: none;
+  width: min(35rem, calc(100vw - 1.5rem));
+}
+
+.notif-toast,
+.notif-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  background-color: var(--surface-chrome);
+  color: var(--text-primary);
+  border-left: 3px solid var(--color-pink-500);
+  font-size: var(--text-sm);
+  pointer-events: auto;
+
+  .notif-icon {
+    font-size: 1rem;
+    margin-top: 0.1rem;
+    color: var(--color-pink-500);
+  }
+
+  .notif-message {
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .notif-close {
+    height: auto;
+    padding: 0.1rem 0.25rem;
+    color: var(--text-muted);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+
+  &[data-severity="warn"] {
+    border-left-color: oklch(0.75 0.18 75);
+
+    .notif-icon {
+      color: oklch(0.75 0.18 75);
+    }
+  }
+
+  &[data-severity="error"] {
+    border-left-color: oklch(0.6 0.22 25);
+
+    .notif-icon {
+      color: oklch(0.6 0.22 25);
+    }
+  }
+}
+
+.notif-toast {
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--color-pink-500) 18%, transparent);
+  transform-origin: bottom right;
+  animation: notif-toast-in 180ms ease-out;
+
+  &.leaving {
+    animation: notif-toast-out 160ms ease-in forwards;
+  }
+}
+
+.notif-item {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 12%, transparent);
+
+  .notif-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .notif-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+@keyframes notif-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes notif-toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
   }
 }
 

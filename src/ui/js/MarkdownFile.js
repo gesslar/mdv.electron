@@ -1,5 +1,5 @@
 import Base from "./Base.js"
-import {error, warn} from "./Logging.js"
+import {toast} from "./Logging.js"
 import {Notify} from "./vendor/toolkit.esm.js"
 
 /**
@@ -67,19 +67,15 @@ export default class MarkdownFile extends Base {
         return
       }
 
-      // TODO: dedupe — if `selection` is already open in another window,
-      // raise that window and skip loading here. Needs a toast to surface
-      // the redirect; until then, falling through silently would just look
-      // like the dialog did nothing. Revive once toasts land:
-      //
-      //   const focused = await window.mdv.window.focusIfOpen(selection)
-      //   if(focused) {
-      //     // Notify.emit("toast", {message: `Already open: ${selection}`})
-      //     return
-      //   }
-      //
-      // Requires preload: window.focusIfOpen → ipcRenderer.invoke("window:focus-if-open", path)
-      // Requires main:    ipcMain.handle("window:focus-if-open", ...) returning bool
+      const focused = await window.mdv.window.focusIfOpen(selection)
+      if(focused) {
+        Notify.emit("notify", {
+          severity: "info",
+          message: `Already open: ${selection}`
+        })
+
+        return
+      }
 
       Notify.emit("file-selected", selection)
     } catch(e) {
@@ -107,7 +103,7 @@ export default class MarkdownFile extends Base {
 
       return selected || null
     } catch(err) {
-      error(`Failed to open file dialog: ${err}`)
+      toast("error", `Failed to open file dialog: ${err}`)
 
       return null
     }
@@ -135,13 +131,13 @@ export default class MarkdownFile extends Base {
     const valid = collection.filter(item => this.#validFileType(item))
 
     if(valid.length !== 1)
-      return warn("Please drop a single markdown file.")
+      return toast("warn", "Please drop a single markdown file.")
 
     const file = valid[0]
     const content = await file?.text()
 
     if(!content)
-      return error("Could not read dropped file.")
+      return toast("error", "Could not read dropped file.")
 
     return content
   }
