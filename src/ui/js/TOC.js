@@ -1,29 +1,73 @@
 import Base from "./Base.js"
-import {HTML, Notify} from "./vendor/toolkit.esm.js"
 
 /**
  * Builds and injects a table of contents derived from headings collected by Marked.
  * Each instance is identified by a random id to avoid collisions across renders.
  */
 export default class TOC extends Base {
-  static #contentPath = "toc.html"
   #tocId
-  #tocAnchors = []
+  #select
+  #container
+  #headings = []
+  #rafId = null
 
   /**
-   * Construct a TOC object with the Markdown document object.
+   * Construct a TOC against the rendered markdown element and its heading
+   * metadata. The DOM is built synchronously inside `#new` and wired up here.
    *
-   * @param {HTMLElement} toc - Prebuilt TOC root element to attach and manage.
+   * @param {HTMLElement} mdElement - The rendered markdown root element.
+   * @param {Array<{id: string, text: string, depth: number}>} headingsMetadata - Heading metadata from markdown parsing.
    */
-  constructor(toc) {
+  constructor(mdElement, headingsMetadata) {
     super()
 
-    this.#tocId = `MDV-TOC-${crypto.randomUUID()}`
-    toc.id = this.#tocId
+    const {container, headings} = TOC.#new(mdElement, headingsMetadata)
 
-    this.element = toc
-    this.#tocAnchors = toc.querySelectorAll(".toc-link")
-    this.#wireScrollButtons(toc)
+    this.#tocId = `MDV-TOC-${crypto.randomUUID()}`
+    container.id = this.#tocId
+
+    this.element = container
+    this.#container = container
+    this.#select = container.querySelector("ld-select")
+    this.#headings = headings
+
+    this.#wireFabToggle(container)
+    this.#wireScrollButtons(container)
+    this.#wireSelectJump()
+    this.#wireScrollSpy()
+  }
+
+  /**
+   * Wires the show/hide FAB toggle. The container's `data-state` flips between
+   * `collapsed` and `expanded` so CSS can drive the visual transition.
+   *
+   * @param {HTMLElement} container - TOC container.
+   * @private
+   */
+  #wireFabToggle(container) {
+    const showBtn = container.querySelector("[data-toc-action='show']")
+    const hideBtn = container.querySelector("[data-toc-action='hide']")
+
+    if(showBtn)
+      this.registerOn("click", () => this.#setState("expanded"), showBtn)
+
+    if(hideBtn)
+      this.registerOn("click", () => this.#setState("collapsed"), hideBtn)
+  }
+
+  /**
+   * Updates the container state and reflects it on the show button's
+   * aria-expanded for assistive tech.
+   *
+   * @param {"collapsed"|"expanded"} state - Target state.
+   * @private
+   */
+  #setState(state) {
+    this.#container.dataset.state = state
+
+    const showBtn = this.#container.querySelector("[data-toc-action='show']")
+    if(showBtn)
+      showBtn.setAttribute("aria-expanded", state === "expanded" ? "true" : "false")
   }
 
   /**
@@ -48,101 +92,127 @@ export default class TOC extends Base {
   }
 
   /**
-   * Exposes the anchors collected from the rendered TOC element.
+   * Wires the ld-select change handler so picking a heading scrolls the stage
+   * to that anchor. Option values are `#heading-id`, ready for querySelector.
    *
-   * @returns {NodeList} All TOC anchors currently managed.
-   */
-  get anchors() {
-    return this.#tocAnchors
-  }
-
-  /**
-   * Generate a new TOC instance with all of the whistles.
-   *
-   * @param {HTMLElement} mdElement - The markdown document
-   * @param {Array<{id: string, text: string, depth: number}>} headingsMetadata - Heading metadata from markdown parsing
-   * @returns {Promise<TOC>} An instance of TOC
-   */
-  static async new(mdElement, headingsMetadata) {
-    const container = await this.#createToc(mdElement, headingsMetadata)
-    const instance = new TOC(container)
-
-    return instance
-  }
-
-  /**
-   * Builds the TOC DOM from the template.
-   *
-   * @async
-   * @param {HTMLDivElement} mdElement - The Markdown document instance.
-   * @param {Array<{id: string, text: string, depth: number}>} headingsMetadata - Heading metadata from markdown parsing
-   * @returns {Promise<HTMLElement>} TOC container (with header/list/footer) ready for insertion into the DOM.
    * @private
    */
-  static async #createToc(mdElement, headingsMetadata) {
-    const tocHtml = await HTML.loadHTML(this.#contentPath)
+  #wireSelectJump() {
+    if(!this.#select)
+      return
 
-    /** @type {HTMLDivElement} */
-    const tocElement = document.createElement("div")
+    this.registerOn("change", () => {
+      const href = this.#select.value
+      if(!href)
+        return
 
-    HTML.setHTMLContent(tocElement, tocHtml)
+      const target = document.querySelector(href)
+      if(target)
+        target.scrollIntoView({behavior: "smooth", block: "start"})
+    }, this.#select)
+  }
 
-    /** @type {HTMLElement} */
-    const container = tocElement.querySelector("#toc-mdv-container")
+  /**
+   * Tracks the topmost heading whose top has crossed the stage's top edge as
+   * the user scrolls and reflects it in the select via the no-fire value
+   * setter (so we don't loop back into a scroll).
+   *
+   * @private
+   */
+  #wireScrollSpy() {
+    const stage = document.querySelector("#stage")
+    if(!stage || !this.#select || this.#headings.length === 0)
+      return
+
+    const onScroll = () => {
+      if(this.#rafId !== null)
+        return
+
+      this.#rafId = requestAnimationFrame(() => {
+        this.#rafId = null
+        this.#updateActiveHeading(stage)
+      })
+    }
+
+    this.registerOn("scroll", onScroll, stage, {passive: true})
+    this.register(() => {
+      if(this.#rafId !== null) {
+        cancelAnimationFrame(this.#rafId)
+        this.#rafId = null
+      }
+    })
+
+    requestAnimationFrame(() => this.#updateActiveHeading(stage))
+  }
+
+  /**
+   * Finds the last heading whose top has crossed the stage's top edge and
+   * pushes its id into the select. Falls back to the first heading when
+   * scrolled above all of them.
+   *
+   * @param {HTMLElement} stage - The scroll container.
+   * @private
+   */
+  #updateActiveHeading(stage) {
+    if(!this.#select)
+      return
+
+    const trigger = stage.getBoundingClientRect().top + 1
+    let active = null
+
+    for(const heading of this.#headings) {
+      if(heading.getBoundingClientRect().top <= trigger)
+        active = heading
+      else
+        break
+    }
+
+    active = active ?? this.#headings[0]
+    if(!active)
+      return
+
+    const target = `#${active.id}`
+    if(this.#select.value !== target)
+      this.#select.value = target
+  }
+
+  /**
+   * Builds the TOC DOM from the template and collects the heading elements
+   * in document order so the scrollspy can iterate them later.
+   *
+   * @param {HTMLElement} mdElement - The rendered markdown root element.
+   * @param {Array<{id: string, text: string, depth: number}>} headingsMetadata - Heading metadata from markdown parsing.
+   * @returns {{container: HTMLElement, headings: HTMLElement[]}} TOC container and ordered heading elements.
+   * @private
+   */
+  static #new(mdElement, headingsMetadata) {
+    const tocTemplate = document.querySelector("#toc-template")
+    const tocClone = tocTemplate.content.cloneNode(true)
+    const container = tocClone.querySelector("#toc-mdv-container")
     container.removeAttribute("id")
 
-    /** @type {HTMLTemplateElement} */
-    const template = tocElement.querySelector("#toc-item-template")
+    /** @type {HTMLElement} */
+    const tocRoot = container.querySelector("#toc-mdv")
 
-    /** @type {HTMLUListElement} */
-    const tocRoot = tocElement.querySelector("#toc-mdv")
+    const headings = []
 
-    headingsMetadata.forEach(headingMeta => {
-      const title = headingMeta.text
-      const depth = headingMeta.depth
-      const id = headingMeta.id
-
+    headingsMetadata.forEach(({id, text, depth}) => {
       /** @type {HTMLHeadingElement} */
       const headingInDoc = mdElement.querySelector(`#${CSS.escape(id)}`)
 
       if(!headingInDoc)
         throw new Error(`What? Can't find heading with id="${id}"`)
 
-      headingInDoc.setAttribute("headingDepth", depth)
+      /** @type {HTMLOptionElement} */
+      const option = document.createElement("option")
+      option.value = `#${id}`
+      option.textContent = text
+      option.classList.add(`toc-depth-${depth}`)
 
-      /** @type {Node} */
-      const fragment = template.content.cloneNode(true)
-      const headingClass = `toc-depth-${depth}`
-
-      /** @type {HTMLLIElement} */
-      const item = fragment.querySelector(".toc-item")
-
-      item.classList.add(headingClass)
-
-      /** @type {HTMLAnchorElement} */
-      const link = item.querySelector(".toc-link")
-
-      link.text = title.replace(/^<p>|<\/p>$/g, "")
-      link.href = `#${id}`
-      link.title = title
-      link["aria-label"] = link.title
-
-      headingInDoc.tocItem = item
-      item.headingInDoc = headingInDoc
-
-      tocRoot.appendChild(fragment)
+      tocRoot.appendChild(option)
+      headings.push(headingInDoc)
     })
 
-    return container
-  }
-
-  /**
-   * Emits a teardown event and delegates cleanup to the Base implementation.
-   *
-   * @returns {void}
-   */
-  remove() {
-    Notify.emit("toc-removed", this.#tocAnchors)
-    super.remove()
+    return {container, headings}
   }
 }

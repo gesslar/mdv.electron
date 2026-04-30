@@ -1,97 +1,78 @@
 [id^="MDV-TOC-"] {
-  grid-column: 2;
-  height: 100%;
-  position: sticky;
-  top: 0;
-  padding: 0;
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  z-index: 10;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--surface-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  box-shadow: var(--shadow-md);
   user-select: none;
   -webkit-user-select: none;
+  transition:
+    padding 160ms var(--default-transition-timing-function),
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
 
-  .toc-nav {
-    flex: 0 0 auto;
-    display: flex;
-    background-color: var(--surface-app);
+  /* Collapsed: only the show-FAB is visible; everything else is removed
+     from layout so the container shrinks to a circle. */
+  &[data-state="collapsed"] {
+    padding: 0;
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+
+    .toc-fab-hide,
+    .toc-nav-btn,
+    .toc-select {
+      display: none;
+    }
   }
 
-  .toc-scroll-top {
-    border-bottom: 1px solid color-mix(in oklab, var(--color-pink-500) 20%, transparent);
+  &[data-state="expanded"] .toc-fab-show {
+    display: none;
   }
 
-  .toc-scroll-bottom {
-    border-top: 1px solid color-mix(in oklab, var(--color-pink-500) 20%, transparent);
-  }
-
+  .toc-fab,
   .toc-nav-btn {
-    cursor: pointer;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
     background: transparent;
     border: 0;
-    color: var(--color-pink-500);
-    padding: var(--spacing-md) var(--spacing-lg);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    border-radius: 999px;
+    color: var(--text-muted);
+    cursor: pointer;
     font-size: var(--text-base);
-    transition: background-color 100ms ease-out;
-  }
+    transition: background-color 100ms ease-out, color 100ms ease-out;
 
-  .toc-nav-btn:hover {
-    background: color-mix(in oklab, var(--color-pink-500) 12%, transparent);
-  }
-
-  ul {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    min-height: 0;
-    padding: 0;
-    margin: 0;
-
-    li.toc-item {
-      list-style-type: none;
-      margin-block-start: 0;
-      margin-block-end: 0;
-      padding-inline-start: 0;
-      unicode-bidi: isolate;
-      white-space: nowrap;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      color: var(--color-pink-500);
-      padding-right: 1rem;
-
-      &[visible] {
-        border-left: 1px solid var(--toc-item-border);
-      }
-
-      &:not([visible]) {
-        border-left: 1px solid transparent;
-      }
-
-      &.toc-depth-1 {
-        padding-left: calc(var(--spacing-lg) * 0)
-      }
-
-      &.toc-depth-2 {
-        padding-left: calc(var(--spacing-lg) * 1)
-      }
-
-      &.toc-depth-3 {
-        padding-left: calc(var(--spacing-lg) * 2)
-      }
-
-      &.toc-depth-4 {
-        padding-left: calc(var(--spacing-lg) * 3)
-      }
-
-      &.toc-depth-5 {
-        padding-left: calc(var(--spacing-lg) * 4)
-      }
-
-      &.toc-depth-6 {
-        padding-left: calc(var(--spacing-lg) * 5)
-      }
+    &:hover {
+      background-color: var(--toolbutton-hover);
+      color: var(--text-primary);
     }
+  }
+
+  /* The show-FAB is the resting state — give it a filled affordance so it
+     reads as a button when the rest of the bar is hidden. */
+  .toc-fab-show {
+    background-color: var(--surface-panel);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    color: var(--color-pink-500);
+  }
+
+  .toc-select {
+    flex: 0 1 auto;
+    width: max-content;
+    min-width: 14rem;
+    max-width: 22rem;
   }
 }

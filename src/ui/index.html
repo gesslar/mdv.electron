@@ -12,6 +12,7 @@
 
   <link rel="stylesheet" href="css/mdv.css">
   <link id="hljs-theme" rel="stylesheet">
+  <script type="module" src="./js/ld-select.js"></script>
 
   <script>
     // Resolve theme and set the hljs stylesheet href before first paint, so
@@ -105,6 +106,26 @@
     </div>
   </footer>
 
+  <template id="toc-template">
+    <div id="toc-mdv-container" class="toc-fab-container" data-state="collapsed">
+      <button type="button" class="toc-fab toc-fab-show" data-toc-action="show"
+        title="Show table of contents" aria-label="Show table of contents" aria-expanded="false">
+        <i class="codicon codicon-list-unordered" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="toc-fab toc-fab-hide" data-toc-action="hide"
+        title="Hide table of contents" aria-label="Hide table of contents">
+        <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="toc-nav-btn" data-scroll="top" title="Scroll to top" aria-label="Scroll to top">
+        <i class="codicon codicon-chevron-up" aria-hidden="true"></i>
+      </button>
+      <ld-select id="toc-mdv" class="toc-select" aria-label="Jump to heading"></ld-select>
+      <button type="button" class="toc-nav-btn" data-scroll="bottom" title="Scroll to bottom"
+        aria-label="Scroll to bottom">
+        <i class="codicon codicon-chevron-down" aria-hidden="true"></i>
+      </button>
+    </div>
+  </template>
 </body>
 
 </html>

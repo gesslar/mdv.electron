@@ -1,0 +1,187 @@
+/* ld-select — self-contained custom <select> replacement.
+   Consumers theme it by overriding the --ld-select-* tokens below. */
+
+:where(ld-select) {
+  /* Colors */
+  --ld-select-bg: rgba(0, 0, 0, 0.45);
+  --ld-select-fg: #f5f5f5;
+  --ld-select-border: rgba(255, 255, 255, 0.1);
+  --ld-select-border-hover: rgba(255, 255, 255, 0.2);
+  --ld-select-accent: #ffa600;
+  --ld-select-accent-soft: rgba(255, 166, 0, 0.18);
+  --ld-select-accent-softer: rgba(255, 166, 0, 0.1);
+  --ld-select-chevron: rgba(255, 255, 255, 0.5);
+  --ld-select-listbox-bg: #121212;
+  --ld-select-listbox-border: rgba(255, 255, 255, 0.1);
+  --ld-select-listbox-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --ld-select-disabled-opacity: 0.5;
+  --ld-select-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --ld-select-scrollbar-thumb-hover: rgba(255, 166, 0, 0.4);
+
+  /* Geometry */
+  --ld-select-height: 2.4rem;
+  --ld-select-padding-x: 1rem;
+  --ld-select-padding-end: 0.85rem;
+  --ld-select-gap: 0.5rem;
+  --ld-select-font-size: 1rem;
+  --ld-select-radius: 999px;
+  --ld-select-listbox-radius: 0.5rem;
+  --ld-select-option-radius: 0.3rem;
+  --ld-select-option-padding: 0.4rem 0.75rem;
+  --ld-select-listbox-padding: 0.25rem;
+  --ld-select-listbox-max-height: 16rem;
+  --ld-select-listbox-offset: 0.25rem;
+
+  /* Motion */
+  --ld-select-transition: 120ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+ld-select {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+}
+
+.ld-select__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-select-gap);
+  width: 100%;
+  height: var(--ld-select-height);
+  padding: 0 var(--ld-select-padding-end) 0 var(--ld-select-padding-x);
+  font: inherit;
+  font-size: var(--ld-select-font-size);
+  color: var(--ld-select-fg);
+  background-color: var(--ld-select-bg);
+  border: 1px solid var(--ld-select-border);
+  border-radius: var(--ld-select-radius);
+  cursor: pointer;
+  text-align: left;
+  box-sizing: border-box;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.ld-select__button:hover {
+  border-color: var(--ld-select-border-hover);
+}
+
+.ld-select__button:focus-visible,
+.ld-select__button[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--ld-select-accent);
+}
+
+/* All option labels stack in a single grid cell so the button's intrinsic
+   width is the longest option. Only `.is-current` is visible; the rest
+   reserve width without painting. Use `width: max-content` on ld-select
+   (or its container) to opt into native-select-style auto-sizing. */
+.ld-select__values {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  align-items: center;
+}
+
+.ld-select__value {
+  grid-area: 1 / 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  visibility: hidden;
+}
+
+.ld-select__value.is-current {
+  visibility: visible;
+}
+
+.ld-select__chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--ld-select-chevron);
+  transition: transform var(--ld-select-transition);
+}
+
+.ld-select__button[aria-expanded="true"] .ld-select__chevron {
+  transform: rotate(180deg);
+}
+
+.ld-select__chevron svg {
+  width: 100%;
+  height: auto;
+}
+
+.ld-select__listbox {
+  position: fixed;
+  inset: auto;
+  top: anchor(bottom);
+  left: anchor(left);
+  margin: var(--ld-select-listbox-offset) 0 0 0;
+  padding: var(--ld-select-listbox-padding);
+  list-style: none;
+  min-width: anchor-size(width);
+  max-height: var(--ld-select-listbox-max-height);
+  overflow-y: auto;
+  background: var(--ld-select-listbox-bg);
+  color: var(--ld-select-fg);
+  border: 1px solid var(--ld-select-listbox-border);
+  border-radius: var(--ld-select-listbox-radius);
+  box-shadow: var(--ld-select-listbox-shadow);
+  outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ld-select-scrollbar-thumb) transparent;
+
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--ld-select-transition),
+    transform var(--ld-select-transition),
+    display var(--ld-select-transition) allow-discrete,
+    overlay var(--ld-select-transition) allow-discrete;
+}
+
+.ld-select__listbox:not(:popover-open) {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@starting-style {
+  .ld-select__listbox:popover-open {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.ld-select__listbox:hover {
+  scrollbar-color: var(--ld-select-scrollbar-thumb-hover) transparent;
+}
+
+.ld-select__option {
+  padding: var(--ld-select-option-padding);
+  border-radius: var(--ld-select-option-radius);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--ld-select-transition), color var(--ld-select-transition);
+}
+
+.ld-select__option:hover,
+.ld-select__option.is-active {
+  background: var(--ld-select-accent-soft);
+  color: var(--ld-select-accent);
+}
+
+.ld-select__option[aria-selected="true"] {
+  background: var(--ld-select-accent-softer);
+  color: var(--ld-select-accent);
+}
+
+.ld-select__option[aria-disabled="true"] {
+  opacity: var(--ld-select-disabled-opacity);
+  cursor: not-allowed;
+}
