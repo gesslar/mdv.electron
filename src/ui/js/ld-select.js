@@ -218,25 +218,25 @@ export default class LDSelect extends HTMLElement {
   }
 
   #moveActive(delta) {
-    if(this.#options.length === 0)
+    const n = this.#options.length
+    if(n === 0)
       return
 
     let i = this.#activeIndex
-    const start = i
 
-    do {
+    for(let step = 0; step < n; step++) {
       i += delta
 
       if(i < 0)
-        i = this.#options.length - 1
-      else if(i >= this.#options.length)
+        i = n - 1
+      else if(i >= n)
         i = 0
 
-      if(i === start)
+      if(!this.#options[i].disabled) {
+        this.#setActive(i)
         return
-    } while(this.#options[i].disabled)
-
-    this.#setActive(i)
+      }
+    }
   }
 
   #setActive(index) {

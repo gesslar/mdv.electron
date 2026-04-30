@@ -106,7 +106,7 @@ export default class TOC extends Base {
       if(!href)
         return
 
-      const target = document.querySelector(href)
+      const target = document.querySelector(`#${CSS.escape(href.slice(1))}`)
       if(target)
         target.scrollIntoView({behavior: "smooth", block: "start"})
     }, this.#select)
