@@ -1,10 +1,10 @@
 import Base from "./Base.js"
-import {info, warn} from "./Logging.js"
+import {warn} from "./Logging.js"
 import {Notify} from "./vendor/toolkit.esm.js"
-import TOC from "./TOC.js"
 
 /**
  * @import {Markdown} from "./Markdown.js"
+ * @import TOC from "./TOC.js"
  */
 
 /**
@@ -43,7 +43,6 @@ export default class UI extends Base {
     ["ctrl+o", "#action-open-button"],
     ["ctrl+w", "#action-close"],
   ]))
-  #observer
   #markdown
   #currentTheme = null
   #flashTimeout
@@ -78,10 +77,8 @@ export default class UI extends Base {
     this.registerOn("drag-out", evt => this.#dragOut(evt))
     this.registerOn("markdown-rendered", evt => this.#displayContent(evt))
     this.registerOn("object-removed", evt => this.#handleObjectRemoval(evt))
-    this.registerOn("toc-removed", evt => this.#removeTocObservers(evt))
     this.registerOn("theme-changed", evt => this.#handleThemeChange(evt))
 
-    this.#setupObserver()
     this.initializeTheme()
     await this.#initializeWindowControls()
   }
@@ -367,15 +364,12 @@ export default class UI extends Base {
       const existingToc = main.querySelector("#toc")
       const tocElement = toc?.element
       if(existingToc) {
-        if(tocElement) {
+        if(tocElement)
           main.replaceChild(tocElement, existingToc)
-          this.#addTocObservers(tocElement)
-        } else {
+        else
           existingToc.remove()
-        }
       } else if(tocElement) {
         main.appendChild(tocElement)
-        this.#addTocObservers(tocElement)
         main.classList.add("has-content")
       }
 
@@ -392,11 +386,9 @@ export default class UI extends Base {
 
       stage.appendChild(mdElement)
 
-      // TOC goes directly in main as a grid child (after stage)
       const tocElement = toc?.element
       if(tocElement) {
         main.appendChild(tocElement)
-        this.#addTocObservers(tocElement)
         main.classList.add("has-content")
       }
 
@@ -446,60 +438,6 @@ export default class UI extends Base {
 
     if(target)
       target.scrollIntoView({behavior: "smooth"})
-  }
-
-  #setupObserver() {
-    const func = this.#inView.bind(this)
-    const observer = new IntersectionObserver(func, {
-      root: document.querySelector("#stage"),
-      threshold: 0.75,
-      delay: 100,
-    })
-
-    this.#observer = [observer, func]
-  }
-
-  #inView(entries, _observer) {
-    info(entries)
-    entries.forEach(entry => {
-      if(entry.isIntersecting && entry.intersectionRatio >= 0.75) {
-        entry.target.tocItem.setAttribute("visible", "")
-      } else {
-        entry.target.tocItem.removeAttribute("visible")
-      }
-    })
-  }
-
-  #removeTocObservers({detail: anchors}) {
-    for(const anchor of anchors) {
-      info(`Unobserving ${anchor}`)
-      anchor?.headingInDoc && this.unobserve(anchor.headingInDoc)
-    }
-  }
-
-  #addTocObservers(toc) {
-    const anchors = toc.querySelectorAll("a")
-    for(const anchor of anchors) {
-      anchor?.headingInDoc && this.observe(anchor.headingInDoc)
-    }
-  }
-
-  /**
-   * Begins observing a content element for visibility changes in the viewport.
-   *
-   * @param {HTMLElement} element - Element to observe.
-   */
-  observe(element) {
-    setTimeout(() => this.#observer[0].observe(element), 300)
-  }
-
-  /**
-   * Stops observing a previously watched element.
-   *
-   * @param {HTMLElement} element - Element to unobserve.
-   */
-  unobserve(element) {
-    this.#observer[0].unobserve(element)
   }
 
   #dragTimeout

@@ -3,6 +3,7 @@
 @import "config.css";
 @import "components.css";
 @import "toc.css";
+@import "ld-select.css";
 
 /* Root Variables */
 :root {
@@ -89,7 +90,9 @@ html.dark {
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(120%) contrast(95%);
   --toc-item-border: var(--color-pink-500);
   --heading-weight: 200;
-  --shadow-md: 0 4px 6px -1px rgb(255 255 255 / 0.1), 0 2px 4px -2px rgb(255 255 255 / 0.1);
+  --shadow-md:
+    -1px -1px 2px 2px color-mix(in oklab, var(--color-pink-900) 15%, transparent),
+    1px 1px 2px 2px color-mix(in oklab, var(--color-pink-900) 15%, transparent);
 }
 
 html.light {
@@ -118,7 +121,28 @@ html.light {
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(90%) contrast(95%);
   --toc-item-border: var(--color-zinc-500);
   --heading-weight: 300;
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md:
+    1px 1px 2px 2px color-mix(in oklab, var(--color-pink-900) 15%, transparent),
+    -1px -1px 2px 2px color-mix(in oklab, var(--color-pink-900) 15%, transparent);
+}
+
+/* App-level theming for ld-select. Maps the component's tokens onto our
+   pink/zinc palette so every ld-select picks up the theme. */
+ld-select {
+  --ld-select-bg: var(--surface-button-neutral);
+  --ld-select-fg: var(--text-on-panel);
+  --ld-select-border: var(--border-subtle);
+  --ld-select-border-hover: var(--border-strong);
+  --ld-select-accent: var(--color-pink-500);
+  --ld-select-accent-soft: color-mix(in oklab, var(--color-pink-500) 18%, transparent);
+  --ld-select-accent-softer: color-mix(in oklab, var(--color-pink-500) 10%, transparent);
+  --ld-select-chevron: var(--text-muted);
+  --ld-select-listbox-bg: var(--surface-panel);
+  --ld-select-listbox-border: var(--border-subtle);
+  --ld-select-listbox-shadow: var(--panel-shadow);
+  --ld-select-scrollbar-thumb: var(--scrollbar-thumb);
+  --ld-select-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --ld-select-font-size: var(--text-sm);
 }
 
 /* Box-sizing reset: padding and border count toward declared width/height */
@@ -310,10 +334,6 @@ body {
     padding: 0.25em;
     transition: all ease-out var(--default-transition);
     overflow: hidden;
-
-    &.has-content {
-      grid-template-columns: 1fr 20rem;
-    }
 
     a {
       color: var(--color-pink-800);

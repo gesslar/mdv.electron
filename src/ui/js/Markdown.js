@@ -1,8 +1,8 @@
 import hljs from "./vendor/highlight.esm.js"
 import {markedHighlight} from "./vendor/marked-highlight.esm.js"
 import {HTML, Notify} from "./vendor/toolkit.esm.js"
-import TOC from "./TOC.js"
 import Base from "./Base.js"
+import TOC from "./TOC.js"
 
 /**
  * Configures marked/hljs and tracks heading metadata during parsing.
@@ -51,7 +51,7 @@ export class Markdown extends Base {
     this.#injectCopyButtons(element)
 
     if(this.headings.length > 0)
-      this.#toc = await TOC.new(element, this.headings)
+      this.#toc = new TOC(element, this.headings)
 
     this.#parsed = parsed
     this.element = element
@@ -155,8 +155,8 @@ export class Markdown extends Base {
   }
 
   /**
-   * Sets the window title from the document's first H1, and removes that H1
-   * inline when nothing precedes it (the title bar already shows it).
+   * Sets the window title from the document's first H1. The H1 is left in
+   * place so it shows in the doc and acts as the first TOC entry.
    *
    * @param {Element} element - The rendered markdown element.
    * @private
@@ -167,16 +167,6 @@ export class Markdown extends Base {
 
     if(title)
       Notify.emit("title-change", {title})
-
-    if(!firstH1 || element.firstElementChild !== firstH1)
-      return
-
-    const id = firstH1.id
-    firstH1.remove()
-
-    const idx = this.#headings.findIndex(h => h.id === id)
-    if(idx !== -1)
-      this.#headings.splice(idx, 1)
   }
 
   /**
