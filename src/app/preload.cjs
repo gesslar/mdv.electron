@@ -35,6 +35,10 @@ contextBridge.exposeInMainWorld("mdv", {
     getPathForFile: file => webUtils.getPathForFile(file)
   },
 
+  link: {
+    open: (href, baseFilePath) => ipcRenderer.invoke("link:open", {href, baseFilePath})
+  },
+
   watcher: {
     watch: path => ipcRenderer.invoke("watcher:watch", path),
     unwatch: () => ipcRenderer.invoke("watcher:unwatch"),

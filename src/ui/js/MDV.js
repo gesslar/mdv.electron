@@ -122,12 +122,13 @@ async function loadContent({detail: path}) {
 
 async function displayContent({detail}) {
   const content = typeof detail === "string" ? detail : detail.content
+  const filePath = typeof detail === "string" ? null : (detail?.filePath ?? null)
   const hotReload = detail?.hotReload || false
   const markdownModule = await import("./Markdown.js")
   const {Markdown} = markdownModule
   const markdown = new Markdown()
 
-  await markdown.render(content, hotReload)
+  await markdown.render(content, filePath, hotReload)
 }
 
 function handleFileDropped({detail: dragEvent}) {
