@@ -1,5 +1,5 @@
 import Base from "./Base.js"
-import {error} from "./Logging.js"
+import {toast} from "./Logging.js"
 import {DisposerClass, Notify} from "./vendor/toolkit.esm.js"
 
 /**
@@ -54,7 +54,7 @@ export default class FileWatcher extends Base {
                 await window.mdv.fs.readTextFile(this.#currentFilePath)
               Notify.emit("content-loaded", {content, filePath: this.#currentFilePath, hotReload: true})
             } catch(err) {
-              error(`Failed to reload file: ${err.message}`)
+              toast("error", `Failed to reload file: ${err.message}`)
             }
           }
         }),
@@ -65,7 +65,7 @@ export default class FileWatcher extends Base {
         }),
       ])
     } catch(err) {
-      error(`Failed to set up file watcher: ${err}`)
+      toast("warn", `Failed to set up file watcher: ${err}`)
     }
   }
 

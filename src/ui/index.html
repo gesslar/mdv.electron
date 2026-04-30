@@ -98,13 +98,62 @@
   <footer id="app-footer">
     <div id="statusbar">
       <div id="statusbar-left">
+        <div id="filename"><em>No file open.</em></div>
       </div>
       <div id="statusbar-right">
-        <div id="filename"><em>No file open.</em></div>
-
+        <span class="toolbutton">
+          <button id="action-notifications-button" class="cursor-pointer btn btn-action" type="button"
+            aria-label="Notifications" title="Notifications" aria-expanded="false">
+            <i class="codicon codicon-bell" aria-hidden="true"></i>
+            <span class="notif-badge hidden" aria-hidden="true"></span>
+          </button>
+        </span>
       </div>
     </div>
   </footer>
+
+  <aside id="notification-panel" class="hidden" aria-label="Notifications" aria-hidden="true">
+    <header class="notif-panel-header">
+      <span class="notif-panel-title">Notifications</span>
+      <button type="button" class="btn btn-action notif-panel-clear" aria-label="Clear all notifications"
+        title="Clear all">
+        <i class="codicon codicon-clear-all" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="btn btn-action notif-panel-close" aria-label="Hide notifications"
+        title="Hide">
+        <i class="codicon codicon-chevron-down" aria-hidden="true"></i>
+      </button>
+    </header>
+    <ul class="notif-panel-list" role="list"></ul>
+    <p class="notif-panel-empty">No notifications.</p>
+  </aside>
+
+  <div id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+  <template id="notif-toast-template">
+    <div class="notif-toast" role="status">
+      <i class="notif-icon codicon" aria-hidden="true"></i>
+      <p class="notif-message"></p>
+      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification"
+        title="Dismiss">
+        <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
+      </button>
+    </div>
+  </template>
+
+  <template id="notif-list-item-template">
+    <li class="notif-item">
+      <i class="notif-icon codicon" aria-hidden="true"></i>
+      <div class="notif-body">
+        <p class="notif-message"></p>
+        <time class="notif-time"></time>
+      </div>
+      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification"
+        title="Dismiss">
+        <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
+      </button>
+    </li>
+  </template>
 
   <template id="toc-template">
     <div id="toc-mdv-container" class="toc-fab-container" data-state="collapsed">

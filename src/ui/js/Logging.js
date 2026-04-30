@@ -1,3 +1,5 @@
+import {Notify} from "./vendor/toolkit.esm.js"
+
 /**
  * Joins argument payloads into a loggable string, stringifying non-string items.
  *
@@ -80,4 +82,22 @@ function error(...args) {
   logThroughConsole("error", ...args)
 }
 
-export {debug, error, info, trace, warn}
+/**
+ * Surfaces a user-facing toast and mirrors it to the console/main log so
+ * dev tools history and the file-log keep a record. Use for events the
+ * user just triggered or for background failures they'd want to see.
+ *
+ * @param {"info"|"warn"|"error"} severity - Notification severity.
+ * @param {string} message - Human-readable message.
+ * @returns {void}
+ */
+function toast(severity, message) {
+  const consoleMethod = severity === "error" || severity === "warn"
+    ? severity
+    : "info"
+
+  logThroughConsole(consoleMethod, message)
+  Notify.emit("notify", {severity, message})
+}
+
+export {debug, error, info, toast, trace, warn}

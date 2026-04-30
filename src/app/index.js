@@ -75,6 +75,14 @@ const focusWindow = win => {
   win.focus()
 }
 
+// Sends a toast payload to the renderer that owns `sender`. Used by
+// link-open and any other handler that needs to surface user-visible
+// feedback from main.
+const pushToast = (sender, severity, message) => {
+  if(sender && !sender.isDestroyed())
+    sender.send("notify:push", {severity, message})
+}
+
 const appIcon = nativeImage.createFromPath(srcDir.getDirectory("assets/icons").getFile("android-chrome-512x512.png").path)
 const createWindow = (filePath = null) => {
   const win = new BrowserWindow({
@@ -204,6 +212,24 @@ ipcMain.handle("window:toggle-maximize", event => {
 ipcMain.handle("window:close", event =>
   BrowserWindow.fromWebContents(event.sender)?.close())
 
+// Used by the in-app file dialog to dedupe before loading: if the
+// selected file is already showing in another window, focus that one
+// and tell the caller so it can skip the reload.
+ipcMain.handle("window:focus-if-open", (event, filePath) => {
+  if(!filePath)
+    return false
+
+  const sourceWin = BrowserWindow.fromWebContents(event.sender)
+  const existing = findWindowForFile(filePath)
+
+  if(!existing || existing === sourceWin)
+    return false
+
+  focusWindow(existing)
+
+  return true
+})
+
 ipcMain.handle("window:is-maximized", event =>
   BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false)
 
@@ -252,7 +278,7 @@ ipcMain.handle("fs:read-text-file", (_event, path) => readFile(path, "utf8"))
 // Resolves a link href clicked in a rendered document. Markdown targets
 // open in an mdv window (deduped via openFile); anything else is handed
 // to the OS so plain `<a href="image.png">` links don't dead-end.
-ipcMain.handle("link:open", (_event, {href, baseFilePath} = {}) => {
+ipcMain.handle("link:open", async(event, {href, baseFilePath} = {}) => {
   if(typeof href !== "string" || href === "")
     return
 
@@ -276,17 +302,23 @@ ipcMain.handle("link:open", (_event, {href, baseFilePath} = {}) => {
     return
   }
 
-  // TODO: when toast tech lands, surface a "file not found" message
-  // (probably in the new instance) instead of swallowing silently.
-  if(!existsSync(resolved))
+  if(!existsSync(resolved)) {
+    pushToast(event.sender, "warn", `File not found: ${resolved}`)
+
     return
+  }
 
   const ext = /\.([^.]+)$/.exec(resolved)?.[1]?.toLowerCase()
 
-  if(ext && MD_EXTENSIONS.has(ext))
+  if(ext && MD_EXTENSIONS.has(ext)) {
     openFile(resolved)
-  else
-    shell.openPath(resolved)
+  } else {
+    // shell.openPath resolves to "" on success or an error message on
+    // failure (e.g. no app associated with the extension).
+    const openErr = await shell.openPath(resolved)
+    if(openErr)
+      pushToast(event.sender, "error", `Could not open ${resolved}: ${openErr}`)
+  }
 })
 
 ipcMain.handle("watcher:watch", (event, path) => {

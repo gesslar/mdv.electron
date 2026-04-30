@@ -231,7 +231,7 @@ export class Markdown extends Base {
             button.classList.remove("copied")
           }, 500)
         } catch(err) {
-          console.error("Failed to copy code:", err)
+          toast("error", `Failed to copy code: ${err.message ?? err}`)
         }
       })
 

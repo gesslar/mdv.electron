@@ -1,8 +1,9 @@
 import ConfigDialog from "./ConfigDialog.js"
 import FileDrag from "./FileDrag.js"
-import {error} from "./Logging.js"
+import {error, toast} from "./Logging.js"
 import FileWatcher from "./FileWatcher.js"
 import MarkdownFile from "./MarkdownFile.js"
+import NotificationCenter from "./NotificationCenter.js"
 import {Notify} from "./vendor/toolkit.esm.js"
 import UI from "./UI.js"
 
@@ -48,6 +49,15 @@ async function main() {
     // Initialize file watcher
     const fileWatcher = new FileWatcher()
     app.register(fileWatcher)
+
+    // Initialize notification center (bell + toasts). Subscribes to the
+    // `notify` event so any module — and main, via mdv.notify.onPush —
+    // can raise a toast with one line.
+    const notifications = new NotificationCenter()
+    notifications.initialize()
+    app.register(notifications)
+
+    window.mdv.notify?.onPush(payload => Notify.emit("notify", payload))
 
     // Check if a file was passed via CLI arguments (e.g., double-click)
     const markdownFile = new MarkdownFile()
@@ -114,7 +124,7 @@ async function loadContent({detail: path}) {
     const filename = document.querySelector("#filename")
     filename.textContent = path
   } catch(e) {
-    error(e.message)
+    toast("error", `Could not open file: ${e.message}`)
   } finally {
     markdownFile.remove()
   }
