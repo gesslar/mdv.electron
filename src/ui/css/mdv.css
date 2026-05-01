@@ -446,7 +446,7 @@ body {
           fill: var(--color-pink-500);
           filter: var(--link-icon-filter);
 
-          .local-file-link:hover+&,
+          .document-local-link:hover+&,
           .browser-link:hover+& {
             opacity: 1;
             transform: scale(1.1);
