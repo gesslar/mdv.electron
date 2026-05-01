@@ -67,6 +67,7 @@ async function main() {
       Notify.emit("file-selected", cliFilePath)
     } else {
       setTimeout(() => {
+        Notify.emit("file-selected", "/projects/git/mdv.electron/work/highlight-showcase.md")
         // Notify.emit("file-selected", "/home/gesslar/SYNTAX-HIGHLIGHTING-MAYBE.md")
         // Notify.emit("file-selected", "/projects/git/mdv/work/fedora-machine-sync-guide.md")
         // Notify.emit("file-selected", "/projects/git/mdv/work/README.md")
