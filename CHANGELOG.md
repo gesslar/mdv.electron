@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.4.0
+
+### Added
+
+- Custom highlight.js themes: `highlight-dark.css` (derived from gesslar's blackboard themepack, with diff colors pulled from the editor `colors` block rather than `tokenColors`) and a matching `highlight-light.css`. Both expand the hljs class vocabulary beyond what the stock `github.css` covered, with colors expressed in OKLCH.
+- Link styling tokens — `--link-color`, `--link-underline-color`, `--link-underline-offset`, `--link-underline-style` — themed per mode so light mode uses `--color-pink-800` and dark uses `--color-pink-400` instead of one hard-coded shade.
+- `.document-local-link` and `.browser-link` classes on rendered anchors. The link-icon hover/scale now triggers from `:hover` on the link itself (`.local-file-link:hover + &`, `.browser-link:hover + &`) rather than from hovering the icon.
+
+### Changed
+
+- Inline code background bumped from 10% to 20% pink-400 mix for better contrast against the page.
+- `index.html` and `UI.js` now load `css/highlight-{dark,light}.css` instead of `css/github{,-dark}.css`.
+- `.markdownlint.yaml` also disables MD024 (duplicate headings).
+
+### Removed
+
+- `src/ui/css/github.css` (one-line `@import` of the upstream highlight.js stylesheet); superseded by the custom themes above.
+
 ## 1.3.0
 
 ### Added
