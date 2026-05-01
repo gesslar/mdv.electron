@@ -58,6 +58,10 @@
   --radius-sm: 0.25rem;
   --radius-lg: 0.5rem;
 
+  /* Links */
+  --link-underline-offset: 0.3em;
+  --link-underline-style: dotted;
+
   /* Transitions */
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -88,6 +92,8 @@ html.dark {
   --scrollbar-thumb: color-mix(in oklab, var(--color-pink-500) 45%, transparent);
   --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-500) 75%, transparent);
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(120%) contrast(95%);
+  --link-color: var(--color-pink-400);
+  --link-underline-color: color-mix(in oklab, var(--color-pink-100) 25%, transparent);
   --toc-item-border: var(--color-pink-500);
   --heading-weight: 200;
   --shadow-md:
@@ -119,6 +125,8 @@ html.light {
   --scrollbar-thumb: color-mix(in oklab, var(--color-pink-600) 50%, transparent);
   --scrollbar-thumb-hover: color-mix(in oklab, var(--color-pink-600) 85%, transparent);
   --link-icon-filter: brightness(0) saturate(100%) invert(65%) sepia(24%) saturate(354%) hue-rotate(308deg) brightness(90%) contrast(95%);
+  --link-color: var(--color-pink-800);
+  --link-underline-color: color-mix(in oklab, var(--color-pink-500) 25%, transparent);
   --toc-item-border: var(--color-zinc-500);
   --heading-weight: 300;
   --shadow-md:
@@ -338,10 +346,10 @@ body {
     overflow: hidden;
 
     a {
-      color: var(--color-pink-800);
-      text-underline-offset: 0.3em;
-      text-decoration-style: dotted;
-      text-decoration-color: color-mix(in oklab, var(--color-pink-500) 25%, transparent);
+      color: var(--link-color);
+      text-underline-offset: var(--link-underline-offset);
+      text-decoration-style: var(--link-underline-style);
+      text-decoration-color: var(--link-underline-color)
     }
 
     #drop-zone {
@@ -438,7 +446,8 @@ body {
           fill: var(--color-pink-500);
           filter: var(--link-icon-filter);
 
-          &:hover {
+          .local-file-link:hover+&,
+          .browser-link:hover+& {
             opacity: 1;
             transform: scale(1.1);
           }
@@ -468,7 +477,7 @@ body {
         font-feature-settings: var(--mono-font-features);
         white-space: pre-wrap;
 
-        &:has(> code) {
+        &:has(>code) {
           position: relative;
           font-size: .9em;
           padding: 0.75em 1em;
@@ -566,7 +575,7 @@ body {
         font-feature-settings: var(--mono-font-features);
         border: none;
         border-radius: 4px;
-        background-color: color-mix(in oklab, var(--color-pink-400) 10%, transparent);
+        background-color: color-mix(in oklab, var(--color-pink-400) 20%, transparent);
         outline: 1px dotted color-mix(in oklab, var(--color-pink-400) 40%, transparent);
         padding: 0.1em 0.3em;
 
@@ -596,7 +605,6 @@ body {
       tbody,
       tfoot,
       colgroup {
-
         border-bottom: 1px dotted color-mix(in oklab, var(--color-pink-900) 75%, transparent);
       }
 
@@ -743,7 +751,7 @@ body {
     overflow-y: auto;
     flex: 1;
 
-    &:empty + .notif-panel-empty {
+    &:empty+.notif-panel-empty {
       display: block;
     }
   }

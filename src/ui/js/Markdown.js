@@ -229,7 +229,9 @@ export class Markdown extends Base {
       const anchorId = href.slice(1)
       const normalizedId = this.#generateAnchorId(anchorId)
 
-      return `<a href="#${normalizedId}" title="${titleAttr}">${text}</a>`
+      return `<a href="#${normalizedId}" ` +
+        `class="document-local-link"` +
+        `title="${titleAttr}">${text}</a>`
     }
 
     const hrefAttr = escapeAttr(href)
@@ -241,6 +243,7 @@ export class Markdown extends Base {
       return `<span>`+
           `<a `+
             `href="${hrefAttr}" `+
+            `class="browser-link"` +
             `target="_blank" `+
             `rel="noopener noreferrer" `+
             `title="${titleAttr}"`+

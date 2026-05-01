@@ -1,0 +1,225 @@
+/*!
+  Theme: Blackboard (derived from gesslar's blackboard themepack)
+  Source palette is shared across blackboard / bubblegum-goth / corporate.
+  Diff colors pulled from the main `colors` block (gitDecoration / diffEditor),
+  not from the syntax tokenColors palette.
+*/
+
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+}
+
+code.hljs {
+  padding: 3px 5px;
+}
+
+.hljs {
+  color: oklch(0.8015 0 0);
+  background: oklch(0.1684 0 0);
+}
+
+/* === Comments / blockquotes (grey, italic) === */
+.hljs-comment,
+.hljs-quote {
+  color: oklch(0.4997 0 0);
+  font-style: italic;
+}
+
+/* === Doctags inside comments (e.g. @param, @returns) === */
+.hljs-doctag {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+/* === Keywords / storage / storage modifiers / language constants / `this` / `self` === */
+.hljs-keyword {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+.hljs-literal {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+.hljs-variable.language_ {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+/* === Meta directives (preprocessor / decorators / annotations) === */
+.hljs-meta {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+.hljs-meta .hljs-keyword {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+.hljs-meta .hljs-string {
+  color: oklch(0.6946 0.0607 42.82);
+}
+
+/* === Template tags / template variables (Handlebars, JSX-ish) === */
+.hljs-template-tag {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+.hljs-template-variable {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+/* === Types / classes (teal) === */
+.hljs-type {
+  color: oklch(0.6841 0.0853 177.55);
+}
+
+.hljs-title.class_ {
+  color: oklch(0.6841 0.0853 177.55);
+}
+
+.hljs-title.class_.inherited__ {
+  color: oklch(0.6841 0.0853 177.55);
+}
+
+/* === Functions / methods / built-ins (olive) === */
+.hljs-title {
+  color: oklch(0.7161 0.0668 107.97);
+}
+
+.hljs-title.function_ {
+  color: oklch(0.7161 0.0668 107.97);
+}
+
+.hljs-built_in {
+  color: oklch(0.7161 0.0668 107.97);
+}
+
+/* === Constants and enum members (bright cyan, distinct from regular variables) === */
+.hljs-variable.constant_ {
+  color: oklch(0.6648 0.0899 226.23);
+}
+
+/* === Variables / attributes / properties / object keys (light blue) === */
+.hljs-variable {
+  color: oklch(0.6819 0.0688 231.23);
+}
+
+.hljs-attr {
+  color: oklch(0.6819 0.0688 231.23);
+}
+
+.hljs-attribute {
+  color: oklch(0.6819 0.0688 231.23);
+}
+
+.hljs-property {
+  color: oklch(0.6819 0.0688 231.23);
+}
+
+/* === Numbers (green) === */
+.hljs-number {
+  color: oklch(0.6768 0.0835 126.39);
+}
+
+/* === Strings (peach) === */
+.hljs-string {
+  color: oklch(0.6946 0.0607 42.82);
+}
+
+/* === Regular expressions (rust — "Regular expression strings" in source) === */
+.hljs-regexp {
+  color: oklch(0.5676 0.0808 20.9);
+}
+
+/* === Operators (light grey) === */
+.hljs-operator {
+  color: oklch(0.7476 0 0);
+}
+
+/* === Template substitutions / interpolation bodies (light grey) === */
+.hljs-subst {
+  color: oklch(0.7476 0 0);
+}
+
+/* === Character escape sequences (sand) === */
+.hljs-char.escape_ {
+  color: oklch(0.8041 0.0538 85.06);
+}
+
+/* === HTML/XML tag brackets (grey) and tag names (blue) === */
+.hljs-tag {
+  color: oklch(0.5999 0 0);
+}
+
+.hljs-name {
+  color: oklch(0.6706 0.0676 246.11);
+}
+
+/* === CSS selectors === */
+.hljs-selector-tag {
+  color: oklch(0.8041 0.0538 85.06);
+}
+
+.hljs-selector-class {
+  color: oklch(0.8041 0.0538 85.06);
+}
+
+.hljs-selector-id {
+  color: oklch(0.8041 0.0538 85.06);
+}
+
+.hljs-selector-pseudo {
+  color: oklch(0.8041 0.0538 85.06);
+}
+
+.hljs-selector-attr {
+  color: oklch(0.6819 0.0688 231.23);
+}
+
+/* === Symbols / labels (very light grey, distinct from operator grey) === */
+.hljs-symbol {
+  color: oklch(0.8328 0 0);
+}
+
+/* === Markdown markup (only fires inside fenced markdown samples) === */
+.hljs-section {
+  color: oklch(0.6706 0.0676 246.11);
+  font-weight: bold;
+}
+
+.hljs-strong {
+  color: oklch(0.6706 0.0676 246.11);
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  color: oklch(0.7023 0.0689 329.62);
+  font-style: italic;
+}
+
+.hljs-bullet {
+  color: oklch(0.5977 0.0894 260.2);
+}
+
+.hljs-code {
+  color: oklch(0.6946 0.0607 42.82);
+}
+
+.hljs-formula {
+  color: oklch(0.4997 0 0);
+  font-style: italic;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}
+
+/* === Diff additions / deletions (pulled from diffEditor / gitDecoration colors) === */
+.hljs-addition {
+  color: oklch(0.4987 0.0659 167.16);
+  background-color: oklch(0.4987 0.0659 167.16 / 20%);
+}
+
+.hljs-deletion {
+  color: oklch(0.659 0.1304 24.69);
+  background-color: oklch(0.659 0.1304 24.69 / 20%);
+}

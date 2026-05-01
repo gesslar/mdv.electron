@@ -26,7 +26,7 @@
       theme = prefersDark ? "dark" : "light"
     }
     document.documentElement.classList.add(theme)
-    document.getElementById("hljs-theme").href = `css/github${theme === "dark" ? "-dark" : ""}.css`
+    document.getElementById("hljs-theme").href = `css/highlight-${theme === "dark" ? "dark" : "light"}.css`
   </script>
 
   <!-- Application scripts -->
@@ -119,8 +119,7 @@
         title="Clear all">
         <i class="codicon codicon-clear-all" aria-hidden="true"></i>
       </button>
-      <button type="button" class="btn btn-action notif-panel-close" aria-label="Hide notifications"
-        title="Hide">
+      <button type="button" class="btn btn-action notif-panel-close" aria-label="Hide notifications" title="Hide">
         <i class="codicon codicon-chevron-down" aria-hidden="true"></i>
       </button>
     </header>
@@ -134,8 +133,7 @@
     <div class="notif-toast" role="status">
       <i class="notif-icon codicon" aria-hidden="true"></i>
       <p class="notif-message"></p>
-      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification"
-        title="Dismiss">
+      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification" title="Dismiss">
         <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
       </button>
     </div>
@@ -148,8 +146,7 @@
         <p class="notif-message"></p>
         <time class="notif-time"></time>
       </div>
-      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification"
-        title="Dismiss">
+      <button type="button" class="notif-close btn btn-action" aria-label="Dismiss notification" title="Dismiss">
         <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
       </button>
     </li>
@@ -157,12 +154,12 @@
 
   <template id="toc-template">
     <div id="toc-mdv-container" class="toc-fab-container" data-state="collapsed">
-      <button type="button" class="toc-fab toc-fab-show" data-toc-action="show"
-        title="Show table of contents" aria-label="Show table of contents" aria-expanded="false">
+      <button type="button" class="toc-fab toc-fab-show" data-toc-action="show" title="Show table of contents"
+        aria-label="Show table of contents" aria-expanded="false">
         <i class="codicon codicon-list-unordered" aria-hidden="true"></i>
       </button>
-      <button type="button" class="toc-fab toc-fab-hide" data-toc-action="hide"
-        title="Hide table of contents" aria-label="Hide table of contents">
+      <button type="button" class="toc-fab toc-fab-hide" data-toc-action="hide" title="Hide table of contents"
+        aria-label="Hide table of contents">
         <i class="codicon codicon-chrome-close" aria-hidden="true"></i>
       </button>
       <button type="button" class="toc-nav-btn" data-scroll="top" title="Scroll to top" aria-label="Scroll to top">

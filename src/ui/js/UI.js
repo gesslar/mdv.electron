@@ -161,7 +161,7 @@ export default class UI extends Base {
     }
 
     html.classList.add(resolvedTheme)
-    hljsTheme.href = `css/github${resolvedTheme === "dark" ? "-dark" : ""}.css`
+    hljsTheme.href = `css/highlight-${resolvedTheme === "dark" ? "dark" : "light"}.css`
 
     this.#currentTheme = resolvedTheme
   }
