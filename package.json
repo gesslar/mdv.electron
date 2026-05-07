@@ -46,7 +46,7 @@
     "@gesslar/toolkit": "^5.2.0",
     "@highlightjs/cdn-assets": "^11.11.1",
     "@vscode/codicons": "^0.0.45",
-    "dompurify": "^3.4.1",
+    "dompurify": "^3.4.2",
     "marked": "^18.0.2",
     "marked-highlight": "^2.2.4"
   }
