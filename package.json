@@ -43,7 +43,7 @@
     "nodemon": "^3.1.14"
   },
   "dependencies": {
-    "@gesslar/toolkit": "^5.2.0",
+    "@gesslar/toolkit": "^5.4.0",
     "@highlightjs/cdn-assets": "^11.11.1",
     "@vscode/codicons": "^0.0.45",
     "dompurify": "^3.4.3",
